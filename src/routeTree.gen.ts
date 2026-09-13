@@ -14,6 +14,7 @@ import { Route as ChartsRouteImport } from './routes/charts'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as AlbumBrowseIdRouteImport } from './routes/album.$browseId'
 import { Route as ArtistArtistIdRouteImport } from './routes/artist.$artistId'
+import { Route as PlaylistPlaylistIdRouteImport } from './routes/playlist.$playlistId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const ArtistArtistIdRoute = ArtistArtistIdRouteImport.update({
   path: '/artist/$artistId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlaylistPlaylistIdRoute = PlaylistPlaylistIdRouteImport.update({
+  id: '/playlist/$playlistId',
+  path: '/playlist/$playlistId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
+  '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
+  '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,25 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
+  '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/charts' | '/search' | '/album/$browseId' | '/artist/$artistId'
+    | '/'
+    | '/charts'
+    | '/search'
+    | '/album/$browseId'
+    | '/artist/$artistId'
+    | '/playlist/$playlistId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/charts' | '/search' | '/album/$browseId' | '/artist/$artistId'
+  to:
+    | '/'
+    | '/charts'
+    | '/search'
+    | '/album/$browseId'
+    | '/artist/$artistId'
+    | '/playlist/$playlistId'
   id:
     | '__root__'
     | '/'
@@ -76,6 +96,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/album/$browseId'
     | '/artist/$artistId'
+    | '/playlist/$playlistId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -84,6 +105,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   AlbumBrowseIdRoute: typeof AlbumBrowseIdRoute
   ArtistArtistIdRoute: typeof ArtistArtistIdRoute
+  PlaylistPlaylistIdRoute: typeof PlaylistPlaylistIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -123,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArtistArtistIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/playlist/$playlistId': {
+      id: '/playlist/$playlistId'
+      path: '/playlist/$playlistId'
+      fullPath: '/playlist/$playlistId'
+      preLoaderRoute: typeof PlaylistPlaylistIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -132,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   AlbumBrowseIdRoute: AlbumBrowseIdRoute,
   ArtistArtistIdRoute: ArtistArtistIdRoute,
+  PlaylistPlaylistIdRoute: PlaylistPlaylistIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
