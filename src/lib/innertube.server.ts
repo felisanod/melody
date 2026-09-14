@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Server-only InnerTube (YouTube Music) client + renderer parsing.
-// Mirrors the endpoints documented for Metrolist's :innertube module, but
+// Mirrors the endpoints documented for the :innertube module, but
 // returns plain DTOs so the browser never sees raw renderers.
 
 import type {
@@ -232,12 +233,12 @@ function parseTwoRowItem(r: any): MusicItem | undefined {
       playlistId: first(walk(r.thumbnailOverlay, "watchPlaylistEndpoint"))?.playlistId,
       title,
       artists: collectArtists(subRuns),
-      year: subRuns.map((x: any) => String(x?.text ?? "")).find((t) => /^\d{4}$/.test(t.trim())),
-      thumbnail,
-      explicit,
-    } satisfies AlbumItem;
-  }
-  if (type === "MUSIC_PAGE_TYPE_PLAYLIST" || browseId.startsWith("VL")) {
+       year: subRuns.map((x: any) => String(x?.text ?? "")).find((t: string) => /^\d{4}$/.test(t.trim())),
+       thumbnail,
+       explicit,
+     } satisfies AlbumItem;
+   }
+   if (type === "MUSIC_PAGE_TYPE_PLAYLIST" || browseId.startsWith("VL")) {
     return {
       kind: "playlist",
       id: browseId.replace(/^VL/, ""),
@@ -319,10 +320,33 @@ export function collectShelves(response: Json): Shelf[] {
   for (const shelf of walk(response, "musicShelfRenderer")) {
     push(shelfTitle(shelf), shelf.contents);
   }
+  for (const shelf of walk(response, "musicPlaylistShelfRenderer")) {
+    push(shelfTitle(shelf), shelf.contents);
+  }
+  for (const shelf of walk(response, "playlistPanelRenderer")) {
+    push(shelfTitle(shelf), shelf.contents);
+  }
   for (const grid of walk(response, "gridRenderer")) {
     push(runsText(grid?.header?.gridHeaderRenderer?.title), grid.items);
   }
   return sections;
+}
+
+export function collectAll(response: Json): Shelf | null {
+  const items: MusicItem[] = [];
+  for (const key of [
+    "musicResponsiveListItemRenderer",
+    "musicTwoRowItemRenderer",
+    "playlistPanelVideoRenderer",
+    "musicMultiRowListItemRenderer",
+  ] as const) {
+    for (const node of walk(response, key)) {
+      const item = parseItemNode(node);
+      if (item) items.push(item);
+    }
+  }
+  if (!items.length) return null;
+  return { title: "Results", items: dedupe(items) };
 }
 
 export function collectSongs(response: Json): SongItem[] {
@@ -344,9 +368,9 @@ export function collectSongs(response: Json): SongItem[] {
 
 function parseHeader(response: Json): {
   title: string;
-  subtitle?: string;
-  description?: string;
-  thumbnail?: string;
+  subtitle?: string | undefined;
+  description?: string | undefined;
+  thumbnail?: string | undefined;
 } {
   const responsive = first(walk(response, "musicResponsiveHeaderRenderer"));
   if (responsive) {
@@ -355,10 +379,10 @@ function parseHeader(response: Json): {
       subtitle: [runsText(responsive.straplineTextOne), runsText(responsive.subtitle)]
         .filter(Boolean)
         .join(" • "),
-      description: runsText(
-        responsive.description?.musicDescriptionShelfRenderer?.description,
+      description: runsText(responsive.description?.musicDescriptionShelfRenderer?.description),
+      thumbnail: bestThumbnail(
+        responsive.thumbnail?.musicThumbnailRenderer ?? responsive.thumbnail,
       ),
-      thumbnail: bestThumbnail(responsive.thumbnail?.musicThumbnailRenderer ?? responsive.thumbnail),
     };
   }
   const detail = first(walk(response, "musicDetailHeaderRenderer"));
@@ -367,14 +391,18 @@ function parseHeader(response: Json): {
       title: runsText(detail.title),
       subtitle: runsText(detail.subtitle),
       description: runsText(detail.description),
-      thumbnail: bestThumbnail(detail.thumbnail?.croppedSquareThumbnailRenderer ?? detail.thumbnail),
+      thumbnail: bestThumbnail(
+        detail.thumbnail?.croppedSquareThumbnailRenderer ?? detail.thumbnail,
+      ),
     };
   }
   const immersive = first(walk(response, "immersiveHeaderRenderer"));
   if (immersive) {
     return {
       title: runsText(immersive.title),
-      subtitle: runsText(immersive.subscriptionButton?.subscribeButtonRenderer?.subscriberCountText),
+      subtitle: runsText(
+        immersive.subscriptionButton?.subscribeButtonRenderer?.subscriberCountText,
+      ),
       description: runsText(immersive.description),
       thumbnail: bestThumbnail(immersive.thumbnail?.musicThumbnailRenderer ?? immersive.thumbnail),
     };
@@ -410,8 +438,7 @@ export async function detailPage(browseId: string, fallbackTitle: string): Promi
   };
 }
 
-export const SEARCH_FILTER_PARAMS: Record<string, string | undefined> = {
-  all: undefined,
+export const SEARCH_FILTER_PARAMS: Record<string, string> = {
   songs: "EgWKAQIIAWoKEAkQBRAKEAMQBA==",
   videos: "EgWKAQIQAWoKEAkQChAFEAMQBA==",
   albums: "EgWKAQIYAWoKEAkQChAFEAMQBA==",
@@ -421,8 +448,11 @@ export const SEARCH_FILTER_PARAMS: Record<string, string | undefined> = {
 
 export async function searchMusic(query: string, filter: string): Promise<Shelf[]> {
   const params = SEARCH_FILTER_PARAMS[filter];
-  const response = await innertube("search", params ? { query, params } : { query });
-  return collectShelves(response);
+  const response = await innertube("search", { query, params });
+  const shelves = collectShelves(response);
+  if (shelves.length) return shelves;
+  const all = collectAll(response);
+  return all ? [all] : [];
 }
 
 export async function searchSuggestions(input: string): Promise<string[]> {

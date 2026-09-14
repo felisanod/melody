@@ -17,7 +17,7 @@ export function DetailView({ page, round }: { page: DetailPage; round?: boolean 
     <div className="mx-auto max-w-[1600px] space-y-10 px-4 py-8 sm:px-8">
       <header className="flex flex-col gap-6 sm:flex-row sm:items-end">
         <div
-          className={`size-48 shrink-0 overflow-hidden bg-secondary shadow-2xl sm:size-60 ${
+          className={`size-48 shrink-0 overflow-hidden neu-raised shadow-lg sm:size-60 ${
             round ? "rounded-full" : "rounded-2xl"
           }`}
         >
@@ -31,21 +31,23 @@ export function DetailView({ page, round }: { page: DetailPage; round?: boolean 
           </h1>
           {page.subtitle && <p className="text-sm text-muted-foreground">{page.subtitle}</p>}
           {page.description && (
-            <p className="line-clamp-3 max-w-2xl text-sm text-muted-foreground">{page.description}</p>
+            <p className="line-clamp-3 max-w-2xl text-sm text-muted-foreground">
+              {page.description}
+            </p>
           )}
           {songs.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-2">
               <button
                 type="button"
                 onClick={() => playQueue(songs, 0)}
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground transition hover:brightness-110"
+                className="inline-flex items-center gap-2 rounded-full neu-raised px-5 py-2.5 text-sm font-medium text-accent-foreground transition hover:neu-inset-sm"
               >
                 <Play className="size-4 fill-current" /> Play
               </button>
               <button
                 type="button"
                 onClick={shufflePlay}
-                className="inline-flex items-center gap-2 rounded-full bg-secondary px-5 py-2.5 text-sm font-medium transition hover:bg-secondary/70"
+                className="inline-flex items-center gap-2 rounded-full neu-raised px-5 py-2.5 text-sm font-medium transition hover:neu-inset-sm"
               >
                 <Shuffle className="size-4" /> Shuffle
               </button>

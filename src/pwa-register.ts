@@ -21,7 +21,11 @@ async function unregisterAppWorkers() {
   const registrations = await navigator.serviceWorker.getRegistrations();
   await Promise.all(
     registrations
-      .filter((registration) => new URL(registration.active?.scriptURL ?? APP_WORKER_PATH, location.origin).pathname === APP_WORKER_PATH)
+      .filter(
+        (registration) =>
+          new URL(registration.active?.scriptURL ?? APP_WORKER_PATH, location.origin).pathname ===
+          APP_WORKER_PATH,
+      )
       .map((registration) => registration.unregister()),
   );
 }

@@ -11,9 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChartsRouteImport } from './routes/charts'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as HomeRouteImport } from './routes/home'
+import { Route as LibraryRouteImport } from './routes/library'
+import { Route as ListenTogetherRouteImport } from './routes/listen-together'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AlbumBrowseIdRouteImport } from './routes/album.$browseId'
 import { Route as ArtistArtistIdRouteImport } from './routes/artist.$artistId'
+import { Route as ListenTogetherRoomRouteImport } from './routes/listen-together.room'
+import { Route as PlayerVideoIdRouteImport } from './routes/player.$videoId'
 import { Route as PlaylistPlaylistIdRouteImport } from './routes/playlist.$playlistId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -26,9 +33,34 @@ const ChartsRoute = ChartsRouteImport.update({
   path: '/charts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListenTogetherRoute = ListenTogetherRouteImport.update({
+  id: '/listen-together',
+  path: '/listen-together',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AlbumBrowseIdRoute = AlbumBrowseIdRouteImport.update({
@@ -41,6 +73,16 @@ const ArtistArtistIdRoute = ArtistArtistIdRouteImport.update({
   path: '/artist/$artistId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ListenTogetherRoomRoute = ListenTogetherRoomRouteImport.update({
+  id: '/room',
+  path: '/room',
+  getParentRoute: () => ListenTogetherRoute,
+} as any)
+const PlayerVideoIdRoute = PlayerVideoIdRouteImport.update({
+  id: '/player/$videoId',
+  path: '/player/$videoId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlaylistPlaylistIdRoute = PlaylistPlaylistIdRouteImport.update({
   id: '/playlist/$playlistId',
   path: '/playlist/$playlistId',
@@ -50,26 +92,47 @@ const PlaylistPlaylistIdRoute = PlaylistPlaylistIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/library': typeof LibraryRoute
+  '/listen-together': typeof ListenTogetherRouteWithChildren
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
+  '/listen-together/room': typeof ListenTogetherRoomRoute
+  '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/library': typeof LibraryRoute
+  '/listen-together': typeof ListenTogetherRouteWithChildren
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
+  '/listen-together/room': typeof ListenTogetherRoomRoute
+  '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/history': typeof HistoryRoute
+  '/home': typeof HomeRoute
+  '/library': typeof LibraryRoute
+  '/listen-together': typeof ListenTogetherRouteWithChildren
   '/search': typeof SearchRoute
+  '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
+  '/listen-together/room': typeof ListenTogetherRoomRoute
+  '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
 }
 export interface FileRouteTypes {
@@ -77,34 +140,61 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/charts'
+    | '/history'
+    | '/home'
+    | '/library'
+    | '/listen-together'
     | '/search'
+    | '/settings'
     | '/album/$browseId'
     | '/artist/$artistId'
+    | '/listen-together/room'
+    | '/player/$videoId'
     | '/playlist/$playlistId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/charts'
+    | '/history'
+    | '/home'
+    | '/library'
+    | '/listen-together'
     | '/search'
+    | '/settings'
     | '/album/$browseId'
     | '/artist/$artistId'
+    | '/listen-together/room'
+    | '/player/$videoId'
     | '/playlist/$playlistId'
   id:
     | '__root__'
     | '/'
     | '/charts'
+    | '/history'
+    | '/home'
+    | '/library'
+    | '/listen-together'
     | '/search'
+    | '/settings'
     | '/album/$browseId'
     | '/artist/$artistId'
+    | '/listen-together/room'
+    | '/player/$videoId'
     | '/playlist/$playlistId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChartsRoute: typeof ChartsRoute
+  HistoryRoute: typeof HistoryRoute
+  HomeRoute: typeof HomeRoute
+  LibraryRoute: typeof LibraryRoute
+  ListenTogetherRoute: typeof ListenTogetherRouteWithChildren
   SearchRoute: typeof SearchRoute
+  SettingsRoute: typeof SettingsRoute
   AlbumBrowseIdRoute: typeof AlbumBrowseIdRoute
   ArtistArtistIdRoute: typeof ArtistArtistIdRoute
+  PlayerVideoIdRoute: typeof PlayerVideoIdRoute
   PlaylistPlaylistIdRoute: typeof PlaylistPlaylistIdRoute
 }
 
@@ -124,11 +214,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChartsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home': {
+      id: '/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listen-together': {
+      id: '/listen-together'
+      path: '/listen-together'
+      fullPath: '/listen-together'
+      preLoaderRoute: typeof ListenTogetherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/search': {
       id: '/search'
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/album/$browseId': {
@@ -145,6 +270,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArtistArtistIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/listen-together/room': {
+      id: '/listen-together/room'
+      path: '/room'
+      fullPath: '/listen-together/room'
+      preLoaderRoute: typeof ListenTogetherRoomRouteImport
+      parentRoute: typeof ListenTogetherRoute
+    }
+    '/player/$videoId': {
+      id: '/player/$videoId'
+      path: '/player/$videoId'
+      fullPath: '/player/$videoId'
+      preLoaderRoute: typeof PlayerVideoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/playlist/$playlistId': {
       id: '/playlist/$playlistId'
       path: '/playlist/$playlistId'
@@ -155,12 +294,30 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ListenTogetherRouteChildren {
+  ListenTogetherRoomRoute: typeof ListenTogetherRoomRoute
+}
+
+const ListenTogetherRouteChildren: ListenTogetherRouteChildren = {
+  ListenTogetherRoomRoute: ListenTogetherRoomRoute,
+}
+
+const ListenTogetherRouteWithChildren = ListenTogetherRoute._addFileChildren(
+  ListenTogetherRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChartsRoute: ChartsRoute,
+  HistoryRoute: HistoryRoute,
+  HomeRoute: HomeRoute,
+  LibraryRoute: LibraryRoute,
+  ListenTogetherRoute: ListenTogetherRouteWithChildren,
   SearchRoute: SearchRoute,
+  SettingsRoute: SettingsRoute,
   AlbumBrowseIdRoute: AlbumBrowseIdRoute,
   ArtistArtistIdRoute: ArtistArtistIdRoute,
+  PlayerVideoIdRoute: PlayerVideoIdRoute,
   PlaylistPlaylistIdRoute: PlaylistPlaylistIdRoute,
 }
 export const routeTree = rootRouteImport

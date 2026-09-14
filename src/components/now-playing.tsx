@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ChevronDown,
   GripVertical,
+  Moon,
   Pause,
   Play,
   Repeat,
@@ -18,6 +19,7 @@ import { Slider } from "@/components/ui/slider";
 import { getLyrics } from "@/lib/music.functions";
 import type { SongItem } from "@/lib/music-types";
 import { cn } from "@/lib/utils";
+import { useSleepTimer } from "@/hooks/use-sleep-timer";
 import { formatTime, usePlayer } from "@/player/player-context";
 
 function artistNames(song?: SongItem) {
@@ -60,7 +62,8 @@ function LyricsPane() {
     node?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, [activeIndex]);
 
-  if (isLoading) return <p className="py-10 text-center text-sm text-muted-foreground">Looking for lyrics…</p>;
+  if (isLoading)
+    return <p className="py-10 text-center text-sm text-muted-foreground">Looking for lyrics…</p>;
 
   if (data?.synced.length) {
     return (
@@ -74,7 +77,7 @@ function LyricsPane() {
             className={cn(
               "block w-full text-balance rounded-lg px-3 py-2 text-left font-display text-lg leading-snug transition-colors",
               i === activeIndex
-                ? "bg-accent/10 text-accent"
+                ? "neu-inset-sm text-accent"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -113,7 +116,7 @@ function QueuePane() {
         <button
           type="button"
           onClick={clearQueue}
-          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs text-muted-foreground transition hover:bg-secondary/50 hover:text-foreground"
         >
           <Trash2 className="size-3.5" /> Clear
         </button>
@@ -132,8 +135,8 @@ function QueuePane() {
               dragFrom.current = null;
             }}
             className={cn(
-              "group flex items-center gap-2 rounded-xl px-2 py-2 transition-colors hover:bg-secondary/70",
-              i === index && "bg-secondary",
+              "group flex items-center gap-2 rounded-xl px-2 py-2 transition-colors hover:bg-secondary/50",
+              i === index && "neu-inset-sm",
             )}
           >
             <GripVertical className="size-4 cursor-grab text-muted-foreground/60" />
@@ -143,9 +146,13 @@ function QueuePane() {
               className="flex min-w-0 flex-1 items-center gap-3 text-left"
             >
               {song.thumbnail ? (
-                <img src={song.thumbnail} alt="" className="size-10 rounded-lg object-cover" />
+                <img
+                  src={song.thumbnail}
+                  alt=""
+                  className="size-10 rounded-lg object-cover neu-raised-sm"
+                />
               ) : (
-                <span className="size-10 rounded-lg bg-secondary" />
+                <span className="size-10 rounded-lg neu-raised-sm bg-secondary" />
               )}
               <span className="min-w-0">
                 <span
@@ -164,7 +171,7 @@ function QueuePane() {
             <button
               type="button"
               onClick={() => removeAt(i)}
-              className="rounded-full p-1.5 text-muted-foreground opacity-0 transition hover:bg-secondary hover:text-foreground group-hover:opacity-100"
+              className="rounded-full p-1.5 text-muted-foreground opacity-0 transition hover:bg-secondary hover:text-foreground group-hover:opacity-100 neu-raised-sm"
             >
               <X className="size-4" />
             </button>
@@ -192,12 +199,13 @@ export function NowPlaying() {
     setExpanded,
   } = usePlayer();
   const [tab, setTab] = useState<"queue" | "lyrics">("lyrics");
+  const sleep = useSleepTimer();
 
   if (!current) return null;
   const RepeatIcon = repeat === "one" ? Repeat1 : Repeat;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-background/95 backdrop-blur-2xl">
+    <div className="fixed inset-0 z-50 overflow-y-auto neu-inset">
       {current.thumbnail && (
         <img
           src={current.thumbnail}
@@ -210,16 +218,20 @@ export function NowPlaying() {
         <button
           type="button"
           onClick={() => setExpanded(false)}
-          className="mb-6 inline-flex items-center gap-2 rounded-full bg-card/70 px-4 py-2 text-sm text-muted-foreground transition hover:text-foreground"
+          className="mb-6 inline-flex items-center gap-2 rounded-full neu-raised px-4 py-2 text-sm text-muted-foreground transition hover:text-foreground"
         >
           <ChevronDown className="size-4" /> Close
         </button>
 
         <div className="grid gap-10 lg:grid-cols-[minmax(0,420px)_1fr]">
           <div>
-            <div className="aspect-square w-full overflow-hidden rounded-3xl bg-secondary shadow-2xl">
+            <div className="aspect-square w-full overflow-hidden rounded-3xl bg-secondary shadow-2xl neu-raised-lg">
               {current.thumbnail && (
-                <img src={current.thumbnail} alt={current.title} className="size-full object-cover" />
+                <img
+                  src={current.thumbnail}
+                  alt={current.title}
+                  className="size-full object-cover"
+                />
               )}
             </div>
             <h1 className="mt-6 text-balance font-display text-3xl font-semibold tracking-tight">
@@ -232,49 +244,86 @@ export function NowPlaying() {
               value={[Math.min(positionMs, durationMs || positionMs)]}
               max={durationMs || (current.durationSeconds ?? 0) * 1000 || 1}
               step={1000}
-              onValueChange={([value]) => seek(value)}
+              onValueChange={([value]) => seek(value ?? 0)}
             />
             <div className="mt-2 flex justify-between text-xs tabular-nums text-muted-foreground">
               <span>{formatTime(positionMs)}</span>
               <span>{formatTime(durationMs)}</span>
             </div>
 
+            {sleep.active && (
+              <p className="mt-1 text-center text-xs text-accent">
+                Sleep: {sleep.formatTime(sleep.remaining)}
+              </p>
+            )}
+
             <div className="mt-4 flex items-center justify-center gap-4">
               <button
                 type="button"
                 onClick={toggleShuffle}
-                className={cn("rounded-full p-3 transition hover:bg-secondary", shuffle && "text-accent")}
+                className={cn(
+                  "rounded-full p-3 transition hover:bg-secondary/50",
+                  shuffle && "text-accent",
+                )}
               >
                 <Shuffle className="size-5" />
               </button>
-              <button type="button" onClick={previous} className="rounded-full p-3 transition hover:bg-secondary">
+              <button
+                type="button"
+                onClick={previous}
+                className="rounded-full p-3 transition hover:bg-secondary/50"
+              >
                 <SkipBack className="size-6 fill-current" />
               </button>
               <button
                 type="button"
                 onClick={toggle}
-                className="rounded-full bg-accent p-5 text-accent-foreground transition hover:brightness-110"
+                className="rounded-full bg-accent neu-raised text-accent-foreground transition hover:neu-inset-sm"
               >
-                {playing ? <Pause className="size-7 fill-current" /> : <Play className="size-7 fill-current" />}
+                {playing ? (
+                  <Pause className="size-7 fill-current" />
+                ) : (
+                  <Play className="size-7 fill-current" />
+                )}
               </button>
-              <button type="button" onClick={next} className="rounded-full p-3 transition hover:bg-secondary">
+              <button
+                type="button"
+                onClick={next}
+                className="rounded-full p-3 transition hover:bg-secondary/50"
+              >
                 <SkipForward className="size-6 fill-current" />
               </button>
               <button
                 type="button"
                 onClick={cycleRepeat}
                 className={cn(
-                  "rounded-full p-3 transition hover:bg-secondary",
+                  "rounded-full p-3 transition hover:bg-secondary/50",
                   repeat !== "off" && "text-accent",
                 )}
               >
                 <RepeatIcon className="size-5" />
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (sleep.active) sleep.stop();
+                  else sleep.start("30m");
+                }}
+                className={cn(
+                  "rounded-full p-3 transition hover:bg-secondary/50",
+                  sleep.active && "text-accent",
+                )}
+                title={
+                  sleep.active ? `Sleep timer: ${sleep.formatTime(sleep.remaining)}` : "Sleep timer"
+                }
+              >
+                <Moon className="size-5" />
+              </button>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-border/60 bg-card/60 p-4 sm:p-6">
-            <div className="mb-4 inline-flex rounded-full bg-secondary p-1 text-sm">
+          <div className="rounded-3xl border border-border/40 bg-card/60 p-4 sm:p-6 neu-raised">
+            <div className="mb-4 inline-flex rounded-full neu-inset-sm p-1 text-sm">
               {(["lyrics", "queue"] as const).map((key) => (
                 <button
                   key={key}
@@ -282,7 +331,7 @@ export function NowPlaying() {
                   onClick={() => setTab(key)}
                   className={cn(
                     "rounded-full px-4 py-1.5 capitalize transition",
-                    tab === key ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+                    tab === key ? "neu-inset-sm text-accent-foreground" : "text-muted-foreground",
                   )}
                 >
                   {key}

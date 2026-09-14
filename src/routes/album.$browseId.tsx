@@ -14,10 +14,13 @@ const albumQuery = (browseId: string) =>
 export const Route = createFileRoute("/album/$browseId")({
   head: () => ({
     meta: [
-      { title: "Album — Metrolist" },
+      { title: "Album — flex-web" },
       { name: "description", content: "Album tracklist with instant playback and synced lyrics." },
-      { property: "og:title", content: "Album — Metrolist" },
-      { property: "og:description", content: "Album tracklist with instant playback and synced lyrics." },
+      { property: "og:title", content: "Album — flex-web" },
+      {
+        property: "og:description",
+        content: "Album tracklist with instant playback and synced lyrics.",
+      },
     ],
   }),
   loader: ({ context, params }) => {

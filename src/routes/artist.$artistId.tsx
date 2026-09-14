@@ -14,10 +14,16 @@ const artistQuery = (artistId: string) =>
 export const Route = createFileRoute("/artist/$artistId")({
   head: () => ({
     meta: [
-      { title: "Artist — Metrolist" },
-      { name: "description", content: "Artist top songs, albums and singles with one-tap playback." },
-      { property: "og:title", content: "Artist — Metrolist" },
-      { property: "og:description", content: "Artist top songs, albums and singles with one-tap playback." },
+      { title: "Artist — flex-web" },
+      {
+        name: "description",
+        content: "Artist top songs, albums and singles with one-tap playback.",
+      },
+      { property: "og:title", content: "Artist — flex-web" },
+      {
+        property: "og:description",
+        content: "Artist top songs, albums and singles with one-tap playback.",
+      },
     ],
   }),
   loader: ({ context, params }) => {

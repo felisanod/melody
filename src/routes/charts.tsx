@@ -13,12 +13,13 @@ const chartsQuery = queryOptions({
 export const Route = createFileRoute("/charts")({
   head: () => ({
     meta: [
-      { title: "Charts — trending songs and artists | Metrolist" },
+      { title: "Charts — trending songs and artists | flex-web" },
       {
         name: "description",
-        content: "Today's trending tracks, top songs, videos and artists from the YouTube Music charts.",
+        content:
+          "Trending charts, top songs and top artists from YouTube Music.",
       },
-      { property: "og:title", content: "Charts — trending songs and artists | Metrolist" },
+      { property: "og:title", content: "Charts — trending songs and artists | flex-web" },
       {
         property: "og:description",
         content: "Today's trending tracks, top songs and artists from YouTube Music.",

@@ -1,48 +1,46 @@
 import { Link } from "@tanstack/react-router";
-import { AudioLines, BarChart3, Compass, Search } from "lucide-react";
+import { ListMusic } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { PlayerBar } from "@/components/player-bar";
 import { NowPlaying } from "@/components/now-playing";
+import { BottomNav, SidebarFooter, SidebarNav, ThemeToggle } from "@/components/sidebar-nav";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { usePlayer } from "@/player/player-context";
-
-const NAV = [
-  { to: "/", label: "Explore", icon: Compass },
-  { to: "/charts", label: "Charts", icon: BarChart3 },
-  { to: "/search", label: "Search", icon: Search },
-] as const;
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { expanded, current } = usePlayer();
+  const isMobile = useIsMobile();
+
+  useKeyboardShortcuts();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1600px] items-center gap-6 px-4 py-3 sm:px-8">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-              <AudioLines className="size-5" />
-            </span>
-            <span className="font-display text-lg font-semibold">flex-web</span>
-          </Link>
-          <nav className="flex items-center gap-1 text-sm">
-            {NAV.map(({ to, label, icon: Icon }) => (
-              <Link
-                key={to}
-                to={to}
-                activeOptions={{ exact: to === "/" }}
-                className="flex items-center gap-2 rounded-full px-3 py-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
-                activeProps={{ className: "bg-secondary text-foreground" }}
-              >
-                <Icon className="size-4" />
-                <span className="hidden sm:inline">{label}</span>
-              </Link>
-            ))}
-          </nav>
+    <div className="min-h-screen text-foreground">
+      <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border/40 px-4 neu-raised-sm sm:px-6">
+        <Link to="/" className="flex items-center gap-2">
+          <span className="flex size-9 items-center justify-center rounded-xl neu-raised-sm text-accent-foreground">
+            <ListMusic className="size-5" />
+          </span>
+          <span className="font-display text-lg font-semibold">flex-web</span>
+        </Link>
+        <div className="ml-auto flex items-center gap-2">
+          <ThemeToggle />
         </div>
       </header>
 
-      <main className={current ? "pb-32" : "pb-12"}>{children}</main>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:left-0 lg:w-60 lg:border-r lg:border-border/40">
+        <div className="flex flex-1 flex-col py-4">
+          <SidebarNav />
+          <SidebarFooter />
+        </div>
+      </aside>
+
+      <main className={`${isMobile ? "pb-32" : "pb-12"} lg:pl-60 lg:pr-6`}>{children}</main>
+
+      {/* Mobile bottom nav */}
+      {isMobile && <BottomNav />}
 
       <PlayerBar />
       {expanded && <NowPlaying />}

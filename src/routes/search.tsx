@@ -8,23 +8,24 @@ import { getSuggestions, searchCatalog } from "@/lib/music.functions";
 import type { SongItem } from "@/lib/music-types";
 import { cn } from "@/lib/utils";
 
-const FILTERS = ["all", "songs", "videos", "albums", "artists", "playlists"] as const;
+const FILTERS = ["songs", "videos", "albums", "artists", "playlists"] as const;
 
 export const Route = createFileRoute("/search")({
   validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === "string" ? search.q : "",
-    filter: FILTERS.includes(search.filter as (typeof FILTERS)[number])
-      ? (search.filter as (typeof FILTERS)[number])
-      : ("all" as const),
+    q: typeof search["q"] === "string" ? search["q"] : "",
+    filter: FILTERS.includes(search["filter"] as (typeof FILTERS)[number])
+      ? (search["filter"] as (typeof FILTERS)[number])
+      : ("songs" as const),
   }),
   head: () => ({
     meta: [
-      { title: "Search music — Metrolist" },
+      { title: "Search music — flex-web" },
       {
         name: "description",
-        content: "Search songs, albums, artists and playlists across YouTube Music and play them instantly.",
+        content:
+          "Search songs, albums, artists and playlists across YouTube Music and play them instantly.",
       },
-      { property: "og:title", content: "Search music — Metrolist" },
+      { property: "og:title", content: "Search music — flex-web" },
       {
         property: "og:description",
         content: "Search songs, albums, artists and playlists and play them instantly.",
@@ -84,11 +85,11 @@ function SearchPage() {
             onBlur={() => window.setTimeout(() => setFocused(false), 150)}
             placeholder="Songs, albums, artists…"
             aria-label="Search music"
-            className="w-full rounded-full border border-border/70 bg-card/70 py-4 pl-12 pr-4 text-base outline-none transition focus:border-accent"
+            className="w-full rounded-full border border-border/50 py-4 pl-12 pr-4 text-base outline-none transition focus:border-accent/50 neu-inset"
           />
         </form>
         {focused && (suggestions.data?.length ?? 0) > 0 && (
-          <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-border/70 bg-card shadow-2xl">
+          <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-border/40 bg-card neu-raised">
             {suggestions.data!.map((item) => (
               <li key={item}>
                 <button
@@ -97,7 +98,7 @@ function SearchPage() {
                     setTerm(item);
                     submit(item);
                   }}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition hover:bg-secondary"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition hover:bg-secondary/50"
                 >
                   <SearchIcon className="size-4 text-muted-foreground" />
                   {item}
@@ -115,10 +116,10 @@ function SearchPage() {
             type="button"
             onClick={() => void navigate({ search: (prev) => ({ ...prev, filter: key }) })}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm capitalize transition",
+              "rounded-full px-4 py-1.5 text-sm capitalize transition neu-raised-sm",
               key === filter
-                ? "bg-accent text-accent-foreground"
-                : "bg-secondary text-muted-foreground hover:text-foreground",
+                ? "text-accent-foreground neu-inset-sm"
+                : "text-muted-foreground hover:text-foreground hover:neu-inset-sm",
             )}
           >
             {key}
@@ -150,6 +151,7 @@ function SearchPage() {
                       <ItemCard
                         key={`${item.kind}-${"id" in item ? item.id : item.browseId}-${index}`}
                         item={item}
+                        contextSongs={undefined}
                       />
                     ))}
                   </div>
@@ -159,7 +161,7 @@ function SearchPage() {
           })}
         </div>
       ) : (
-        <EmptyState message={`No results for “${q}”. Try a different spelling.`} />
+        <EmptyState message={`No results for "${q}". Try a different spelling.`} />
       )}
     </div>
   );

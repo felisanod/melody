@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createContext,
   useCallback,
@@ -10,6 +11,7 @@ import {
 } from "react";
 
 import { getRadio } from "@/lib/music.functions";
+import { likeVideo, removeSongFromLibrary } from "@/lib/music.functions";
 import type { SongItem } from "@/lib/music-types";
 
 export type RepeatMode = "off" | "all" | "one";
@@ -27,7 +29,7 @@ interface PersistedState {
 interface PlayerState {
   queue: SongItem[];
   index: number;
-  current?: SongItem;
+  current: SongItem | undefined;
   playing: boolean;
   ready: boolean;
   positionMs: number;
@@ -47,6 +49,9 @@ interface PlayerApi extends PlayerState {
   previous: () => void;
   seek: (ms: number) => void;
   setVolume: (value: number) => void;
+  toggleMute: () => void;
+  volumeUp: () => void;
+  volumeDown: () => void;
   toggleShuffle: () => void;
   cycleRepeat: () => void;
   addToQueue: (song: SongItem) => void;
@@ -55,6 +60,9 @@ interface PlayerApi extends PlayerState {
   moveItem: (from: number, to: number) => void;
   clearQueue: () => void;
   setExpanded: (value: boolean) => void;
+  likeCurrent: () => void;
+  likeVideo: (videoId: string, like: boolean) => Promise<void>;
+  removeSongFromLibrary: (videoId: string) => Promise<void>;
 }
 
 const PlayerContext = createContext<PlayerApi | null>(null);
@@ -98,6 +106,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [positionMs, setPositionMs] = useState(0);
   const [durationMs, setDurationMs] = useState(0);
   const [volume, setVolumeState] = useState(80);
+  const [muted, setMuted] = useState(false);
+  const previousVolume = useRef(80);
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>("off");
   const [expanded, setExpanded] = useState(false);
@@ -105,6 +115,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const playerRef = useRef<any>(null);
   const loadedIdRef = useRef<string | null>(null);
   const autoplayRef = useRef(false);
+  const playingRef = useRef(playing);
+  playingRef.current = playing;
   const stateRef = useRef({ queue, index, shuffle, repeat });
   stateRef.current = { queue, index, shuffle, repeat };
 
@@ -134,6 +146,22 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       /* storage may be unavailable */
     }
   }, [queue, index, volume, shuffle, repeat]);
+
+  /* ---- session playing marker (managed by visibilitychange handler) ---- */
+
+  /* ---- auto-resume playback if session was active ---- */
+  useEffect(() => {
+    if (!queue.length || !ready) return;
+    const wasPlaying = sessionStorage.getItem("flex-web.playing") === "1";
+    if (wasPlaying && !playing) {
+      const player = playerRef.current;
+      if (player?.playVideo) {
+        setTimeout(() => {
+          player.playVideo();
+        }, 200);
+      }
+    }
+  }, [queue.length, ready, playing]);
 
   const advance = useCallback((direction: 1 | -1) => {
     const { queue: q, index: i, shuffle: sh, repeat: rp } = stateRef.current;
@@ -227,18 +255,117 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     return () => window.clearInterval(id);
   }, [playing]);
 
+  /* ---- keep audio alive across app background/foreground ---- */
+  const wasPlayingBeforeHidden = useRef(false);
+  const resumeTimerRef = useRef<number | null>(null);
+  const resumeAttemptsRef = useRef(0);
+  useEffect(() => {
+    const resumeIfPlaying = () => {
+      if (!wasPlayingBeforeHidden.current) {
+        const wasPlaying = sessionStorage.getItem("flex-web.playing") === "1";
+        if (!wasPlaying) return;
+      }
+      if (resumeTimerRef.current) window.clearTimeout(resumeTimerRef.current);
+      resumeTimerRef.current = window.setTimeout(() => {
+        const player = playerRef.current;
+        if (!player?.getPlayerState) return;
+        const state = player.getPlayerState();
+        if (state === 1) {
+          resumeAttemptsRef.current = 0;
+          return;
+        }
+        resumeAttemptsRef.current += 1;
+        player.playVideo();
+        if (resumeAttemptsRef.current < 5) {
+          resumeTimerRef.current = window.setTimeout(() => {
+            resumeIfPlaying();
+          }, 1000 * resumeAttemptsRef.current);
+        }
+      }, 300 + resumeAttemptsRef.current * 200);
+    };
+    const onVisibility = () => {
+      if (document.hidden) {
+        const player = playerRef.current;
+        if (player?.getPlayerState) {
+          const state = player.getPlayerState();
+          wasPlayingBeforeHidden.current = state === 1;
+        } else {
+          wasPlayingBeforeHidden.current = playingRef.current;
+        }
+        if (wasPlayingBeforeHidden.current) {
+          try {
+            sessionStorage.setItem("flex-web.playing", "1");
+          } catch {
+            /* storage unavailable */
+          }
+        }
+        return;
+      }
+      resumeIfPlaying();
+    };
+    const onFocus = () => {
+      resumeIfPlaying();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("focus", onFocus);
+      if (resumeTimerRef.current) window.clearTimeout(resumeTimerRef.current);
+    };
+  }, []);
+
+  /* ---- periodic state sync: resume if player paused while it should be playing ---- */
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const player = playerRef.current;
+      if (!player?.getPlayerState) return;
+      if (playingRef.current && player.getPlayerState() !== 1) {
+        player.playVideo();
+      }
+    }, 5_000);
+    return () => window.clearInterval(id);
+  }, []);
+
   useEffect(() => {
     playerRef.current?.setVolume?.(volume);
   }, [volume, ready]);
 
+  /* ---- wake lock to prevent device sleep during playback ---- */
+  useEffect(() => {
+    let wakeLock: WakeLockSentinel | null = null;
+    if (!("wakeLock" in navigator)) return () => {};
+    const update = async () => {
+      try {
+        if (playing && !wakeLock) {
+          const wl = await (navigator as any).wakeLock.request("screen");
+          wakeLock = wl;
+          wl.addEventListener("release", () => {
+            wakeLock = null;
+          });
+        } else if (!playing && wakeLock) {
+          await wakeLock.release();
+          wakeLock = null;
+        }
+      } catch {
+        /* wake lock unavailable */
+      }
+    };
+    update();
+    return () => {
+      if (wakeLock) wakeLock.release().catch(() => {});
+    };
+  }, [playing]);
+
   useEffect(() => {
     if (!("mediaSession" in navigator) || !current) return;
-    navigator.mediaSession.metadata = new MediaMetadata({
+    const metadata = new MediaMetadata({
       title: current.title,
       artist: current.artists.map((artist) => artist.name).join(", "),
-      album: current.album?.name,
       artwork: current.thumbnail ? [{ src: current.thumbnail }] : [],
-    });
+    } as MediaMetadataInit & { album?: string });
+    if (current.album?.name) metadata.album = current.album.name;
+    navigator.mediaSession.metadata = metadata;
   }, [current]);
 
   useEffect(() => {
@@ -248,16 +375,28 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       ["pause", () => playerRef.current?.pauseVideo?.()],
       ["previoustrack", () => advance(-1)],
       ["nexttrack", () => advance(1)],
-      ["seekto", (details) => {
-        if (typeof details.seekTime === "number") playerRef.current?.seekTo?.(details.seekTime, true);
-      }],
+      [
+        "seekto",
+        (details) => {
+          if (typeof details.seekTime === "number")
+            playerRef.current?.seekTo?.(details.seekTime, true);
+        },
+      ],
     ];
     for (const [action, handler] of actions) {
-      try { navigator.mediaSession.setActionHandler(action, handler); } catch { /* unsupported action */ }
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch {
+        /* unsupported action */
+      }
     }
     return () => {
       for (const [action] of actions) {
-        try { navigator.mediaSession.setActionHandler(action, null); } catch { /* unsupported action */ }
+        try {
+          navigator.mediaSession.setActionHandler(action, null);
+        } catch {
+          /* unsupported action */
+        }
       }
     };
   }, [advance]);
@@ -338,10 +477,48 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       },
       seek,
       setVolume: setVolumeState,
+      toggleMute: () => {
+        if (!muted) {
+          previousVolume.current = volume;
+          setMuted(true);
+          playerRef.current?.setVolume?.(0);
+        } else {
+          setMuted(false);
+          playerRef.current?.setVolume?.(previousVolume.current);
+          setVolumeState(previousVolume.current);
+        }
+      },
+      volumeUp: () => {
+        const newVol = Math.min(volume + 10, 100);
+        setVolumeState(newVol);
+        setMuted(false);
+        playerRef.current?.setVolume?.(newVol);
+      },
+      volumeDown: () => {
+        const newVol = Math.max(volume - 10, 0);
+        setVolumeState(newVol);
+        playerRef.current?.setVolume?.(newVol);
+      },
+      likeCurrent: () => {},
+      likeVideo: async (videoId: string, like: boolean) => {
+        try {
+          await likeVideo({ data: { videoId, like } });
+        } catch {
+          /* like failed */
+        }
+      },
+      removeSongFromLibrary: async (videoId: string) => {
+        try {
+          await removeSongFromLibrary({ data: { videoId } });
+        } catch {
+          /* remove failed */
+        }
+      },
       toggleShuffle: () => setShuffle((v) => !v),
       cycleRepeat: () =>
         setRepeat((mode) => (mode === "off" ? "all" : mode === "all" ? "one" : "off")),
-      addToQueue: (song) => setQueue((prev) => (prev.some((s) => s.id === song.id) ? prev : [...prev, song])),
+      addToQueue: (song) =>
+        setQueue((prev) => (prev.some((s) => s.id === song.id) ? prev : [...prev, song])),
       playNextInQueue: (song) =>
         setQueue((prev) => {
           const filtered = prev.filter((s) => s.id !== song.id);
@@ -356,9 +533,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         }),
       moveItem: (from, to) =>
         setQueue((prev) => {
-          if (from === to || from < 0 || to < 0 || from >= prev.length || to >= prev.length) return prev;
+          if (from === to || from < 0 || to < 0 || from >= prev.length || to >= prev.length)
+            return prev;
           const copy = [...prev];
-          const [item] = copy.splice(from, 1);
+          const item = copy.splice(from, 1)[0];
+          if (!item) return prev;
           copy.splice(to, 0, item);
           const currentId = prev[index]?.id;
           const newIndex = copy.findIndex((s) => s.id === currentId);
@@ -399,7 +578,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   return (
     <PlayerContext.Provider value={value}>
       {children}
-      <div aria-hidden className="pointer-events-none fixed bottom-0 left-0 -z-50 size-px overflow-hidden opacity-0">
+      <div
+        aria-hidden
+        className="pointer-events-none fixed bottom-0 left-0 -z-50 size-px overflow-hidden opacity-0"
+      >
         <div id="flex-web-playback-engine" />
       </div>
     </PlayerContext.Provider>

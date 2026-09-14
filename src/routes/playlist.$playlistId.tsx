@@ -20,10 +20,13 @@ const playlistQuery = (playlistId: string) =>
 export const Route = createFileRoute("/playlist/$playlistId")({
   head: () => ({
     meta: [
-      { title: "Playlist — Metrolist" },
+      { title: "Playlist — flex-web" },
       { name: "description", content: "Playlist tracklist with queue control and synced lyrics." },
-      { property: "og:title", content: "Playlist — Metrolist" },
-      { property: "og:description", content: "Playlist tracklist with queue control and synced lyrics." },
+      { property: "og:title", content: "Playlist — flex-web" },
+      {
+        property: "og:description",
+        content: "Playlist tracklist with queue control and synced lyrics.",
+      },
     ],
   }),
   loader: ({ context, params }) => {
