@@ -46,18 +46,22 @@ export async function fetchLyrics(
   artist: string,
   durationSeconds?: number,
 ): Promise<LyricsResult> {
-  const cleanTitle = title.replace(/\((?:official|lyric|audio)[^)]*\)/gi, "").trim();
+  const cleanTitle = title
+    .replace(/\((?:official|lyric|audio|visualizer|music video)[^)]*\)/gi, "")
+    .replace(/\s+(?:feat\.?|ft\.?)\s+.+$/i, "")
+    .trim();
+  const cleanArtist = artist.split(/\s*[,&•]\s*/)[0]?.trim() ?? artist.trim();
 
   const exactParams = new URLSearchParams({
     track_name: cleanTitle,
-    artist_name: artist,
+    artist_name: cleanArtist,
   });
   if (durationSeconds) exactParams.set("duration", String(durationSeconds));
   const exact = toResult((await getJson(`${LRCLIB}/get?${exactParams}`)) as LrcLibRecord | null);
   if (exact) return exact;
 
   const searchParams = new URLSearchParams({ track_name: cleanTitle });
-  if (artist) searchParams.set("artist_name", artist);
+  if (cleanArtist) searchParams.set("artist_name", cleanArtist);
   const list = (await getJson(`${LRCLIB}/search?${searchParams}`)) as LrcLibRecord[] | null;
   if (Array.isArray(list)) {
     const withSync = list.find((r) => r.syncedLyrics);
@@ -66,7 +70,7 @@ export async function fetchLyrics(
   }
 
   const loose = (await getJson(
-    `${LRCLIB}/search?${new URLSearchParams({ q: `${cleanTitle} ${artist}`.trim() })}`,
+    `${LRCLIB}/search?${new URLSearchParams({ q: `${cleanTitle} ${cleanArtist}`.trim() })}`,
   )) as LrcLibRecord[] | null;
   if (Array.isArray(loose)) {
     const result = toResult(loose.find((r) => r.syncedLyrics) ?? loose[0]);

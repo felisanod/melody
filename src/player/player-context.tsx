@@ -14,7 +14,7 @@ import type { SongItem } from "@/lib/music-types";
 
 export type RepeatMode = "off" | "all" | "one";
 
-const STORAGE_KEY = "metrolist.player.v2";
+const STORAGE_KEY = "flex-web.player.v1";
 
 interface PersistedState {
   queue: SongItem[];
@@ -166,14 +166,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     loadYouTubeApi().then((YT) => {
       if (cancelled || playerRef.current) return;
-      playerRef.current = new YT.Player("metrolist-playback-engine", {
+      playerRef.current = new YT.Player("flex-web-playback-engine", {
         height: "1",
         width: "1",
         playerVars: { controls: 0, disablekb: 1, playsinline: 1, origin: window.location.origin },
         events: {
           onReady: () => {
             setReady(true);
-            playerRef.current?.setVolume(stateRef.current ? volume : 80);
+            playerRef.current?.setVolume(volume);
           },
           onStateChange: (event: any) => {
             const state = event.data;
@@ -230,6 +230,37 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     playerRef.current?.setVolume?.(volume);
   }, [volume, ready]);
+
+  useEffect(() => {
+    if (!("mediaSession" in navigator) || !current) return;
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: current.title,
+      artist: current.artists.map((artist) => artist.name).join(", "),
+      album: current.album?.name,
+      artwork: current.thumbnail ? [{ src: current.thumbnail }] : [],
+    });
+  }, [current]);
+
+  useEffect(() => {
+    if (!("mediaSession" in navigator)) return;
+    const actions: Array<[MediaSessionAction, MediaSessionActionHandler]> = [
+      ["play", () => playerRef.current?.playVideo?.()],
+      ["pause", () => playerRef.current?.pauseVideo?.()],
+      ["previoustrack", () => advance(-1)],
+      ["nexttrack", () => advance(1)],
+      ["seekto", (details) => {
+        if (typeof details.seekTime === "number") playerRef.current?.seekTo?.(details.seekTime, true);
+      }],
+    ];
+    for (const [action, handler] of actions) {
+      try { navigator.mediaSession.setActionHandler(action, handler); } catch { /* unsupported action */ }
+    }
+    return () => {
+      for (const [action] of actions) {
+        try { navigator.mediaSession.setActionHandler(action, null); } catch { /* unsupported action */ }
+      }
+    };
+  }, [advance]);
 
   const playQueue = useCallback((songs: SongItem[], startIndex = 0) => {
     if (!songs.length) return;
@@ -369,7 +400,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     <PlayerContext.Provider value={value}>
       {children}
       <div aria-hidden className="pointer-events-none fixed bottom-0 left-0 -z-50 size-px overflow-hidden opacity-0">
-        <div id="metrolist-playback-engine" />
+        <div id="flex-web-playback-engine" />
       </div>
     </PlayerContext.Provider>
   );

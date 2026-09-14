@@ -32,14 +32,16 @@ function LyricsPane() {
     queryKey: ["lyrics", current?.id],
     enabled: Boolean(current),
     staleTime: 60 * 60 * 1000,
-    queryFn: () =>
-      getLyrics({
+    queryFn: () => {
+      if (!current) return Promise.resolve({ synced: [] });
+      return getLyrics({
         data: {
-          title: current!.title,
+          title: current.title,
           artist: artistNames(current),
-          durationSeconds: current!.durationSeconds,
+          durationSeconds: current.durationSeconds,
         },
-      }),
+      });
+    },
   });
 
   const activeIndex = useMemo(() => {
