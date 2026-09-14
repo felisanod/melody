@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppShell } from "@/components/app-shell";
 import { PlayerProvider } from "@/player/player-context";
+import { registerPwa } from "@/pwa-register";
 
 function NotFoundComponent() {
   return (
@@ -79,23 +80,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Metrolist — Stream music from YouTube Music" },
-      {
-        name: "description",
-        content:
-          "Metrolist is a fast, ad-free web player for YouTube Music: search, charts, queues and synced lyrics.",
-      },
-      { property: "og:title", content: "Metrolist — Stream music from YouTube Music" },
-      {
-        property: "og:description",
-        content: "Search millions of tracks, build a queue and sing along with synced lyrics.",
-      },
+      { title: "flex-web — Music player with synced lyrics" },
+      { name: "description", content: "Search music, explore charts, build a queue, and follow synced lyrics with flex-web." },
+      { property: "og:title", content: "flex-web — Music player with synced lyrics" },
+      { property: "og:description", content: "Search music, build a queue, and follow synced lyrics." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "flex-web" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#090c0e" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "flex-web" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -126,6 +126,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    void registerPwa();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
