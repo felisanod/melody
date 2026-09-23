@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChartsRouteImport } from './routes/charts'
+import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LibraryRouteImport } from './routes/library'
@@ -33,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const ChartsRoute = ChartsRouteImport.update({
   id: '/charts',
   path: '/charts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -104,6 +110,7 @@ const ApiPublicAudioVideoIdRoute = ApiPublicAudioVideoIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/downloads': typeof DownloadsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/downloads': typeof DownloadsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/downloads': typeof DownloadsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/charts'
+    | '/downloads'
     | '/history'
     | '/home'
     | '/library'
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/charts'
+    | '/downloads'
     | '/history'
     | '/home'
     | '/library'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/charts'
+    | '/downloads'
     | '/history'
     | '/home'
     | '/library'
@@ -210,6 +222,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChartsRoute: typeof ChartsRoute
+  DownloadsRoute: typeof DownloadsRoute
   HistoryRoute: typeof HistoryRoute
   HomeRoute: typeof HomeRoute
   LibraryRoute: typeof LibraryRoute
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       path: '/charts'
       fullPath: '/charts'
       preLoaderRoute: typeof ChartsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -349,6 +369,7 @@ const ListenTogetherRouteWithChildren = ListenTogetherRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChartsRoute: ChartsRoute,
+  DownloadsRoute: DownloadsRoute,
   HistoryRoute: HistoryRoute,
   HomeRoute: HomeRoute,
   LibraryRoute: LibraryRoute,
