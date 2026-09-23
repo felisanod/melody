@@ -15,6 +15,7 @@ import { AppShell } from "@/components/app-shell";
 import { PlayerProvider } from "@/player/player-context";
 import { SettingsProvider } from "@/context/settings-context";
 import { registerPwa } from "@/pwa-register";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -147,6 +148,7 @@ function RootComponent() {
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
           </AppShell>
+          <Toaster />
         </PlayerProvider>
       </SettingsProvider>
     </QueryClientProvider>

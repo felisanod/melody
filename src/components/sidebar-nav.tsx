@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
   Compass,
+  HardDriveDownload,
   Home,
   History,
   Library,
@@ -21,6 +22,7 @@ const SIDEBAR_ITEMS = [
   { to: "/search", label: "Search", icon: Compass },
   { to: "/library", label: "Library", icon: Library },
   { to: "/history", label: "History", icon: History },
+  { to: "/downloads", label: "Downloads", icon: HardDriveDownload },
   { to: "/listen-together", label: "Listen Together", icon: Volume2 },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;

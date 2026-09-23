@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChartsRouteImport } from './routes/charts'
+import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LibraryRouteImport } from './routes/library'
@@ -22,6 +23,8 @@ import { Route as ArtistArtistIdRouteImport } from './routes/artist.$artistId'
 import { Route as ListenTogetherRoomRouteImport } from './routes/listen-together.room'
 import { Route as PlayerVideoIdRouteImport } from './routes/player.$videoId'
 import { Route as PlaylistPlaylistIdRouteImport } from './routes/playlist.$playlistId'
+import { Route as ApiPublicCoverRouteImport } from './routes/api/public/cover'
+import { Route as ApiPublicAudioVideoIdRouteImport } from './routes/api/public/audio.$videoId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const ChartsRoute = ChartsRouteImport.update({
   id: '/charts',
   path: '/charts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DownloadsRoute = DownloadsRouteImport.update({
+  id: '/downloads',
+  path: '/downloads',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -88,10 +96,21 @@ const PlaylistPlaylistIdRoute = PlaylistPlaylistIdRouteImport.update({
   path: '/playlist/$playlistId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCoverRoute = ApiPublicCoverRouteImport.update({
+  id: '/api/public/cover',
+  path: '/api/public/cover',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAudioVideoIdRoute = ApiPublicAudioVideoIdRouteImport.update({
+  id: '/api/public/audio/$videoId',
+  path: '/api/public/audio/$videoId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/downloads': typeof DownloadsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
@@ -103,10 +122,13 @@ export interface FileRoutesByFullPath {
   '/listen-together/room': typeof ListenTogetherRoomRoute
   '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
+  '/api/public/cover': typeof ApiPublicCoverRoute
+  '/api/public/audio/$videoId': typeof ApiPublicAudioVideoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/downloads': typeof DownloadsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
@@ -118,11 +140,14 @@ export interface FileRoutesByTo {
   '/listen-together/room': typeof ListenTogetherRoomRoute
   '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
+  '/api/public/cover': typeof ApiPublicCoverRoute
+  '/api/public/audio/$videoId': typeof ApiPublicAudioVideoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/charts': typeof ChartsRoute
+  '/downloads': typeof DownloadsRoute
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
@@ -134,12 +159,15 @@ export interface FileRoutesById {
   '/listen-together/room': typeof ListenTogetherRoomRoute
   '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
+  '/api/public/cover': typeof ApiPublicCoverRoute
+  '/api/public/audio/$videoId': typeof ApiPublicAudioVideoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/charts'
+    | '/downloads'
     | '/history'
     | '/home'
     | '/library'
@@ -151,10 +179,13 @@ export interface FileRouteTypes {
     | '/listen-together/room'
     | '/player/$videoId'
     | '/playlist/$playlistId'
+    | '/api/public/cover'
+    | '/api/public/audio/$videoId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/charts'
+    | '/downloads'
     | '/history'
     | '/home'
     | '/library'
@@ -166,10 +197,13 @@ export interface FileRouteTypes {
     | '/listen-together/room'
     | '/player/$videoId'
     | '/playlist/$playlistId'
+    | '/api/public/cover'
+    | '/api/public/audio/$videoId'
   id:
     | '__root__'
     | '/'
     | '/charts'
+    | '/downloads'
     | '/history'
     | '/home'
     | '/library'
@@ -181,11 +215,14 @@ export interface FileRouteTypes {
     | '/listen-together/room'
     | '/player/$videoId'
     | '/playlist/$playlistId'
+    | '/api/public/cover'
+    | '/api/public/audio/$videoId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChartsRoute: typeof ChartsRoute
+  DownloadsRoute: typeof DownloadsRoute
   HistoryRoute: typeof HistoryRoute
   HomeRoute: typeof HomeRoute
   LibraryRoute: typeof LibraryRoute
@@ -196,6 +233,8 @@ export interface RootRouteChildren {
   ArtistArtistIdRoute: typeof ArtistArtistIdRoute
   PlayerVideoIdRoute: typeof PlayerVideoIdRoute
   PlaylistPlaylistIdRoute: typeof PlaylistPlaylistIdRoute
+  ApiPublicCoverRoute: typeof ApiPublicCoverRoute
+  ApiPublicAudioVideoIdRoute: typeof ApiPublicAudioVideoIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +251,13 @@ declare module '@tanstack/react-router' {
       path: '/charts'
       fullPath: '/charts'
       preLoaderRoute: typeof ChartsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/downloads': {
+      id: '/downloads'
+      path: '/downloads'
+      fullPath: '/downloads'
+      preLoaderRoute: typeof DownloadsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -291,6 +337,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlaylistPlaylistIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/cover': {
+      id: '/api/public/cover'
+      path: '/api/public/cover'
+      fullPath: '/api/public/cover'
+      preLoaderRoute: typeof ApiPublicCoverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/audio/$videoId': {
+      id: '/api/public/audio/$videoId'
+      path: '/api/public/audio/$videoId'
+      fullPath: '/api/public/audio/$videoId'
+      preLoaderRoute: typeof ApiPublicAudioVideoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -309,6 +369,7 @@ const ListenTogetherRouteWithChildren = ListenTogetherRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChartsRoute: ChartsRoute,
+  DownloadsRoute: DownloadsRoute,
   HistoryRoute: HistoryRoute,
   HomeRoute: HomeRoute,
   LibraryRoute: LibraryRoute,
@@ -319,6 +380,8 @@ const rootRouteChildren: RootRouteChildren = {
   ArtistArtistIdRoute: ArtistArtistIdRoute,
   PlayerVideoIdRoute: PlayerVideoIdRoute,
   PlaylistPlaylistIdRoute: PlaylistPlaylistIdRoute,
+  ApiPublicCoverRoute: ApiPublicCoverRoute,
+  ApiPublicAudioVideoIdRoute: ApiPublicAudioVideoIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

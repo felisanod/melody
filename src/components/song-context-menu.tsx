@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { DownloadButton } from "@/components/download-button";
 import type { MusicItem, SongItem } from "@/lib/music-types";
 import { usePlayer } from "@/player/player-context";
 import {
@@ -104,6 +105,9 @@ export function SongContextMenu({ song, children }: ContextMenuProps) {
         <ContextMenuItem className="gap-2">
           <Music2 className="size-4" />
           <span>View lyrics</span>
+        </ContextMenuItem>
+        <ContextMenuItem onSelect={(e) => e.preventDefault()} className="gap-2 p-0">
+          <DownloadButton song={song} withLabel className="w-full px-2" />
         </ContextMenuItem>
         <ContextMenuItem className="gap-2">
           <Share2 className="size-4" />
