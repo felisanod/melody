@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import type { MusicItem, Shelf, SongItem } from "@/lib/music-types";
 import { usePlayer } from "@/player/player-context";
 import { SongContextMenu } from "@/components/song-context-menu";
+import { DownloadButton } from "@/components/download-button";
 
 function Artwork({
   src,
@@ -190,6 +191,7 @@ export function SongRow({
         <span className="hidden w-12 text-right text-xs tabular-nums text-muted-foreground sm:block">
           {song.durationText ?? ""}
         </span>
+        <DownloadButton song={song} />
         <button
           type="button"
           onClick={() => addToQueue(song)}

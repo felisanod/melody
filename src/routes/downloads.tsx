@@ -186,7 +186,7 @@ function DownloadRow({
       </div>
       <button
         type="button"
-        onClick={() => saveToDevice(record)}
+        onClick={() => void saveToDevice(record).catch(() => toast.error("Could not export this file"))}
         className="rounded-full p-2 text-muted-foreground transition hover:text-foreground"
         title="Save file to device"
         aria-label="Save file to device"

@@ -16,6 +16,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Slider } from "@/components/ui/slider";
+import { DownloadButton } from "@/components/download-button";
 import { getLyrics } from "@/lib/music.functions";
 import type { SongItem } from "@/lib/music-types";
 import { cn } from "@/lib/utils";
@@ -238,6 +239,9 @@ export function NowPlaying() {
               {current.title}
             </h1>
             <p className="mt-1 text-muted-foreground">{artistNames(current)}</p>
+            <div className="mt-3 flex justify-center">
+              <DownloadButton key={current.id} song={current} withLabel className="neu-raised-sm px-4" />
+            </div>
 
             <Slider
               className="mt-6"

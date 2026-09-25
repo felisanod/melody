@@ -145,9 +145,52 @@ export function extensionFor(mimeType: string): string {
   return "m4a";
 }
 
-/** Saves an already-downloaded track to the device as an audio file. */
-export function saveToDevice(record: DownloadRecord): void {
-  const url = URL.createObjectURL(record.audio);
+function lyricsText(lyrics: LyricsResult | undefined): string | undefined {
+  if (!lyrics) return undefined;
+  const l = lyrics as unknown as {
+    plain?: string;
+    synced?: { timeMs?: number; time?: number; text?: string }[];
+  };
+  if (l.plain) return l.plain;
+  if (l.synced?.length) {
+    return l.synced
+      .map((line) => {
+        const ms = line.timeMs ?? line.time ?? 0;
+        const m = Math.floor(ms / 60000);
+        const s = ((ms % 60000) / 1000).toFixed(2).padStart(5, "0");
+        return `[${String(m).padStart(2, "0")}:${s}]${line.text ?? ""}`;
+      })
+      .join("\n");
+  }
+  return undefined;
+}
+
+/** Builds the exported file: the audio with cover art and song details embedded when supported. */
+export async function buildTaggedFile(record: DownloadRecord): Promise<Blob> {
+  if (extensionFor(record.mimeType) !== "m4a") return record.audio;
+  try {
+    const { writeMp4Tags } = await import("./mp4-tags");
+    const bytes = new Uint8Array(await record.audio.arrayBuffer());
+    const cover = record.cover ? new Uint8Array(await record.cover.arrayBuffer()) : undefined;
+    const tagged = writeMp4Tags(bytes, {
+      title: record.title,
+      artist: record.artist,
+      album: record.album,
+      lyrics: lyricsText(record.lyrics),
+      comment: record.durationSeconds ? `Duration ${record.durationSeconds}s` : undefined,
+      cover,
+      coverType: record.coverType,
+    });
+    return new Blob([tagged as BlobPart], { type: "audio/mp4" });
+  } catch {
+    return record.audio;
+  }
+}
+
+/** Saves an already-downloaded track to the device as a tagged audio file. */
+export async function saveToDevice(record: DownloadRecord): Promise<void> {
+  const blob = await buildTaggedFile(record);
+  const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   const safe = `${record.artist} - ${record.title}`.replace(/[\\/:*?"<>|]/g, "_");
   link.href = url;

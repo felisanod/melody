@@ -1,0 +1,3 @@
+- [ ] Make song downloads actually complete (full audio)
+- [x] Download buttons on album + now-playing
+- [x] Embed cover/details into exported file
