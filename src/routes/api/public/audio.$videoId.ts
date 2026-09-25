@@ -13,7 +13,11 @@ export const Route = createFileRoute("/api/public/audio/$videoId")({
           const info = await resolveAudioStream(videoId);
           const range = request.headers.get("range");
           const upstream = await fetch(info.url, {
-            headers: range ? { range } : {},
+            headers: {
+              "user-agent":
+                "com.google.ios.youtube/20.10.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X)",
+              ...(range ? { range } : {}),
+            },
           });
           if (!upstream.ok && upstream.status !== 206) {
             return new Response("upstream error", { status: 502 });
