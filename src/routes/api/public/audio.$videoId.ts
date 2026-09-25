@@ -27,6 +27,18 @@ export const Route = createFileRoute("/api/public/audio/$videoId")({
           }
           if (start > end) return new Response("bad range", { status: 416 });
 
+          if (end >= CHUNK) {
+            const probe = await fetch(`${info.url}&range=${CHUNK}-${Math.min(CHUNK * 2 - 1, end)}`, {
+              headers: { "user-agent": UA },
+            });
+            if (!probe.ok) {
+              return new Response(
+                "YouTube is refusing the full audio for this song right now, so it couldn't be saved.",
+                { status: 502 },
+              );
+            }
+          }
+
           const body = new ReadableStream<Uint8Array>({
             async start(controller) {
               try {
