@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const UA = "com.google.ios.youtube/20.10.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X)";
+const UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 const CHUNK = 1024 * 1024;
 
 export const Route = createFileRoute("/api/public/audio/$videoId")({
@@ -11,62 +12,49 @@ export const Route = createFileRoute("/api/public/audio/$videoId")({
         if (!/^[A-Za-z0-9_-]{5,20}$/.test(videoId)) {
           return new Response("invalid id", { status: 400 });
         }
+        const q = new URL(request.url).searchParams;
+        const src = q.get("src");
+        const total = Number(q.get("len") ?? 0);
+        if (!src || !total) return new Response("missing stream", { status: 400 });
+        let target: URL;
         try {
-          const { resolveAudioStream } = await import("@/lib/download.server");
-          const info = await resolveAudioStream(videoId);
-          const total = info.contentLength;
-          if (!total) return new Response("unknown stream size", { status: 502 });
-
-          // The source only serves ranged requests, so honour the client's range and fetch in chunks.
-          let start = 0;
-          let end = total - 1;
-          const range = request.headers.get("range")?.match(/bytes=(\d*)-(\d*)/);
-          if (range) {
-            if (range[1]) start = Number(range[1]);
-            if (range[2]) end = Math.min(Number(range[2]), total - 1);
-          }
-          if (start > end) return new Response("bad range", { status: 416 });
-
-          if (end >= CHUNK) {
-            const probe = await fetch(`${info.url}&range=${CHUNK}-${Math.min(CHUNK * 2 - 1, end)}`, {
-              headers: { "user-agent": UA },
-            });
-            if (!probe.ok) {
-              return new Response(
-                "YouTube is refusing the full audio for this song right now, so it couldn't be saved.",
-                { status: 502 },
-              );
-            }
-          }
-
-          const body = new ReadableStream<Uint8Array>({
-            async start(controller) {
-              try {
-                for (let pos = start; pos <= end; pos += CHUNK) {
-                  const to = Math.min(pos + CHUNK - 1, end);
-                  const res = await fetch(`${info.url}&range=${pos}-${to}`, {
-                    headers: { "user-agent": UA },
-                  });
-                  if (!res.ok) throw new Error(`upstream ${res.status}`);
-                  controller.enqueue(new Uint8Array(await res.arrayBuffer()));
-                }
-                controller.close();
-              } catch (error) {
-                controller.error(error);
-              }
-            },
-          });
-
-          const headers = new Headers();
-          headers.set("content-type", info.mimeType.split(";")[0] ?? "audio/mp4");
-          headers.set("accept-ranges", "bytes");
-          headers.set("cache-control", "no-store");
-          headers.set("content-length", String(end - start + 1));
-          if (range) headers.set("content-range", `bytes ${start}-${end}/${total}`);
-          return new Response(body, { status: range ? 206 : 200, headers });
-        } catch (error) {
-          return new Response(error instanceof Error ? error.message : "failed", { status: 500 });
+          target = new URL(src);
+        } catch {
+          return new Response("bad stream", { status: 400 });
         }
+        if (target.protocol !== "https:" || !target.hostname.endsWith(".googlevideo.com")) {
+          return new Response("host not allowed", { status: 400 });
+        }
+        const first = await fetch(`${target}&range=0-${Math.min(CHUNK, total) - 1}`, {
+          headers: { "user-agent": UA },
+        });
+        if (!first.ok) {
+          return new Response("YouTube refused this song's audio. Please try again.", { status: 502 });
+        }
+        const firstBytes = new Uint8Array(await first.arrayBuffer());
+        const body = new ReadableStream<Uint8Array>({
+          async start(controller) {
+            try {
+              controller.enqueue(firstBytes);
+              for (let pos = CHUNK; pos < total; pos += CHUNK) {
+                const to = Math.min(pos + CHUNK, total) - 1;
+                const res = await fetch(`${target}&range=${pos}-${to}`, { headers: { "user-agent": UA } });
+                if (!res.ok) throw new Error(`upstream ${res.status}`);
+                controller.enqueue(new Uint8Array(await res.arrayBuffer()));
+              }
+              controller.close();
+            } catch (error) {
+              controller.error(error);
+            }
+          },
+        });
+        return new Response(body, {
+          headers: {
+            "content-type": "audio/mp4",
+            "content-length": String(total),
+            "cache-control": "no-store",
+          },
+        });
       },
     },
   },
