@@ -41,7 +41,7 @@ async function relay(request: Request): Promise<Response> {
   }
   const body =
     request.method === "GET" || request.method === "HEAD" ? undefined : await request.arrayBuffer();
-  const upstream = await fetch(target.toString(), { method: request.method, headers, body });
+  const upstream = await fetch(target.toString(), { method: request.method, headers, body: body ?? null });
   const out = new Headers();
   out.set("content-type", upstream.headers.get("content-type") ?? "application/octet-stream");
   out.set("cache-control", "no-store");
