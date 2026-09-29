@@ -25,7 +25,7 @@ function proxied(input: RequestInfo | URL, init?: RequestInit): Promise<Response
     fetch(`/api/public/yt-proxy?url=${encodeURIComponent(url)}`, {
       method,
       headers: { "x-proxy-headers": JSON.stringify(headers) },
-      body: b as BodyInit | undefined,
+      body: (b ?? null) as BodyInit | null,
     }),
   );
 }
