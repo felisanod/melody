@@ -14,6 +14,8 @@ const albumQuery = (browseId: string) =>
 export const Route = createFileRoute("/album/$browseId")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Album — flex-web" },
       { name: "description", content: "Album tracklist with instant playback and synced lyrics." },
       { property: "og:title", content: "Album — flex-web" },
@@ -29,7 +31,7 @@ export const Route = createFileRoute("/album/$browseId")({
   component: AlbumPage,
   errorComponent: ({ error }) => (
     <p role="alert" className="p-8 text-sm text-muted-foreground">
-      {error.message}
+      {error instanceof Error ? error.message : "This album could not be loaded."}
     </p>
   ),
 });

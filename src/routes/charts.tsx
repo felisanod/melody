@@ -13,6 +13,8 @@ const chartsQuery = queryOptions({
 export const Route = createFileRoute("/charts")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Charts — trending songs and artists | flex-web" },
       {
         name: "description",
@@ -32,7 +34,7 @@ export const Route = createFileRoute("/charts")({
   component: ChartsPage,
   errorComponent: ({ error }) => (
     <p role="alert" className="p-8 text-sm text-muted-foreground">
-      {error.message}
+      {error instanceof Error ? error.message : "Charts could not be loaded."}
     </p>
   ),
 });

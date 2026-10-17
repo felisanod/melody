@@ -36,11 +36,12 @@ async function createMinter(): Promise<any> {
   const { BotGuardClient, getChallenge } = await import("bgutils-js/botguard");
   const { WebPoMinter } = await import("bgutils-js/webpo");
   const challenge: any = await getChallenge({ requestKey: REQUEST_KEY, fetchFunction: proxied as typeof fetch });
+  if (!challenge?.program || !challenge?.globalName) throw new Error("Download verification is unavailable. Please try again.");
   let js = challenge?.interpreterJavascript?.privateDoNotAccessOrElseSafeScriptWrappedValue;
   if (!js) {
     const src = challenge?.interpreterUrl?.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue;
     if (!src) throw new Error("robot check unavailable");
-    js = await (await proxied(`https:${src}`)).text();
+    js = await (await proxied(new URL(src, "https://www.youtube.com").href)).text();
   }
   new Function(js)();
   const bg = await BotGuardClient.create({
@@ -94,7 +95,8 @@ export async function resolveStreamInBrowser(videoId: string): Promise<ResolvedS
   const [minter, yt] = await Promise.all([minterPromise, ytPromise]);
   const pot: string = await minter.mintAsWebsafeString(videoId);
   const info = await yt.getBasicInfo(videoId, { client: "YTMUSIC", po_token: pot });
-  const format = info.chooseFormat({ type: "audio", quality: "best", format: "mp4" });
+  const supportsM4a = Boolean(document.createElement("audio").canPlayType('audio/mp4; codecs="mp4a.40.2"'));
+  const format = info.chooseFormat({ type: "audio", quality: "best", format: supportsM4a ? "mp4" : "webm" });
   let url: string = await format.decipher(yt.session.player);
   if (!url.includes("pot=")) url += `&pot=${encodeURIComponent(pot)}`;
   return {

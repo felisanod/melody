@@ -20,6 +20,8 @@ const playlistQuery = (playlistId: string) =>
 export const Route = createFileRoute("/playlist/$playlistId")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Playlist — flex-web" },
       { name: "description", content: "Playlist tracklist with queue control and synced lyrics." },
       { property: "og:title", content: "Playlist — flex-web" },
@@ -35,7 +37,7 @@ export const Route = createFileRoute("/playlist/$playlistId")({
   component: PlaylistPage,
   errorComponent: ({ error }) => (
     <p role="alert" className="p-8 text-sm text-muted-foreground">
-      {error.message}
+      {error instanceof Error ? error.message : "This playlist could not be loaded."}
     </p>
   ),
 });

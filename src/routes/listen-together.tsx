@@ -3,6 +3,14 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Disc3, Music2, Volume2 } from "lucide-react";
 
 export const Route = createFileRoute("/listen-together")({
+  head: () => ({ meta: [
+    { title: "Listen Together — flex-web" },
+    { name: "description", content: "Shared music listening sessions in flex-web." },
+    { property: "og:title", content: "Listen Together — flex-web" },
+    { property: "og:description", content: "Shared music listening sessions in flex-web." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: ListenTogetherPage,
 });
 

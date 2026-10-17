@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { SongItem } from "@/lib/music-types";
 import { downloadSong, isDownloaded } from "@/lib/downloads";
+import { Button } from "@/components/ui/button";
 
 interface DownloadButtonProps {
   song: SongItem;
@@ -18,6 +19,8 @@ export function DownloadButton({ song, className, withLabel }: DownloadButtonPro
 
   useEffect(() => {
     let alive = true;
+    setState("idle");
+    setProgress(0);
     isDownloaded(song.id)
       .then((saved) => {
         if (alive && saved) setState("done");
@@ -45,11 +48,13 @@ export function DownloadButton({ song, className, withLabel }: DownloadButtonPro
   };
 
   return (
-    <button
+    <Button
+      variant="ghost"
       type="button"
+      disabled={state === "busy"}
       onClick={start}
-      title={state === "done" ? "Available offline" : "Download"}
-      aria-label={state === "done" ? "Available offline" : "Download"}
+      title={state === "done" ? "Available offline" : state === "busy" ? `Downloading ${Math.round(progress * 100)}%` : "Download"}
+      aria-label={state === "done" ? "Available offline" : state === "busy" ? `Downloading ${Math.round(progress * 100)}%` : "Download"}
       className={cn(
         "inline-flex items-center gap-2 rounded-full px-2 py-2 text-muted-foreground transition hover:text-foreground",
         state === "done" && "text-accent",
@@ -72,6 +77,6 @@ export function DownloadButton({ song, className, withLabel }: DownloadButtonPro
               : "Download"}
         </span>
       ) : null}
-    </button>
+    </Button>
   );
 }

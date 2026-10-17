@@ -15,7 +15,7 @@ export const Route = createFileRoute("/api/public/audio/$videoId")({
         const q = new URL(request.url).searchParams;
         const src = q.get("src");
         const total = Number(q.get("len") ?? 0);
-        if (!src || !total) return new Response("missing stream", { status: 400 });
+        if (!src || !Number.isSafeInteger(total) || total <= 0 || total > 512 * 1024 * 1024) return new Response("invalid stream length", { status: 400 });
         let target: URL;
         try {
           target = new URL(src);
@@ -50,7 +50,7 @@ export const Route = createFileRoute("/api/public/audio/$videoId")({
         });
         return new Response(body, {
           headers: {
-            "content-type": "audio/mp4",
+            "content-type": first.headers.get("content-type") ?? "application/octet-stream",
             "content-length": String(total),
             "cache-control": "no-store",
           },

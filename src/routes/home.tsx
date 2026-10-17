@@ -3,6 +3,14 @@ import { ArrowLeft, ChevronRight, Music2, User } from "lucide-react";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/home")({
+  head: () => ({ meta: [
+    { title: "Home — flex-web" },
+    { name: "description", content: "Explore music, charts and search in flex-web." },
+    { property: "og:title", content: "Home — flex-web" },
+    { property: "og:description", content: "Explore music, charts and search in flex-web." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: HomePage,
 });
 

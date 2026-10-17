@@ -19,6 +19,8 @@ export const Route = createFileRoute("/search")({
   }),
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Search music — flex-web" },
       {
         name: "description",

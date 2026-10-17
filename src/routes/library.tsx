@@ -13,6 +13,8 @@ const libraryQuery = queryOptions({
 export const Route = createFileRoute("/library")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Library — flex-web" },
       { name: "description", content: "Your songs, albums, artists, playlists and history." },
       { property: "og:title", content: "Library — flex-web" },

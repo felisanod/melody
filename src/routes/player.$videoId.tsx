@@ -7,7 +7,14 @@ import type { SongItem } from "@/lib/music-types";
 
 export const Route = createFileRoute("/player/$videoId")({
   head: () => ({
-    meta: [{ title: "Now Playing — flex-web" }, { name: "description", content: "Playing now." }],
+    meta: [
+      { title: "Now Playing — flex-web" },
+      { name: "description", content: "Your current song in flex-web." },
+      { property: "og:title", content: "Now Playing — flex-web" },
+      { property: "og:description", content: "Your current song in flex-web." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
   }),
   loader: ({ context, params }) => {
     void params;

@@ -13,6 +13,8 @@ const historyQuery = queryOptions({
 export const Route = createFileRoute("/history")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "History — flex-web" },
       { name: "description", content: "Your listening history." },
       { property: "og:title", content: "History — flex-web" },

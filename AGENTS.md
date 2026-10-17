@@ -55,6 +55,9 @@ src/
 ```
 
 ## Playback Engine
+- Downloads resolve streams dynamically in the browser and transfer bytes through the same-origin audio proxy; this keeps browser verification out of SSR and media requests on the resolving server's network.
+- Offline music remains device-local in IndexedDB, including audio and artwork, so saved tracks can play without a network connection.
+- Prefer M4A for tagged exports when the browser supports AAC; otherwise resolve WebM/Opus for offline playback and retain cover/details in the local record, since the MP4 tag writer does not support WebM.
 - Hidden YouTube IFrame player (`<div id="flex-web-playback-engine">`)
 - Controls via YT.Player API (playVideo, pauseVideo, seekTo, etc.)
 - State synced via polling (250ms interval)

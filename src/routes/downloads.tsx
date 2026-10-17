@@ -5,11 +5,13 @@ import { toast } from "sonner";
 
 import {
   deleteDownload,
+  buildTaggedFile,
   formatBytes,
   listDownloads,
   saveToDevice,
   type DownloadRecord,
 } from "@/lib/downloads";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/downloads")({
   head: () => ({
@@ -67,8 +69,10 @@ function DownloadsPage() {
     const url = URL.createObjectURL(record.audio);
     urlRef.current = url;
     audio.src = url;
-    void audio.play().catch(() => toast.error("Could not play this saved file"));
-    setPlayingId(record.id);
+    void audio.play().then(() => setPlayingId(record.id)).catch(() => {
+      setPlayingId(null);
+      toast.error("This browser cannot play the saved audio format. You can still save the file to your device.");
+    });
   };
 
   const remove = async (record: DownloadRecord) => {
@@ -138,6 +142,14 @@ function DownloadRow({
   onRemove: () => void;
 }) {
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [exportBlob, setExportBlob] = useState<Blob | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    setExportBlob(null);
+    void buildTaggedFile(record).then((blob) => { if (alive) setExportBlob(blob); });
+    return () => { alive = false; };
+  }, [record]);
 
   useEffect(() => {
     if (!record.cover) return;
@@ -150,7 +162,8 @@ function DownloadRow({
 
   return (
     <li className="flex items-center gap-3 rounded-2xl neu-raised-sm p-3">
-      <button
+      <Button
+        variant="ghost"
         type="button"
         onClick={onPlay}
         className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-secondary"
@@ -161,14 +174,14 @@ function DownloadRow({
         ) : (
           <Music2 className="absolute inset-0 m-auto size-5 text-muted-foreground" />
         )}
-        <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition hover:opacity-100">
+        <span className="absolute inset-0 flex items-center justify-center bg-background/60 opacity-0 transition hover:opacity-100">
           {playing ? (
-            <Pause className="size-5 text-white" />
+            <Pause className="size-5 text-foreground" />
           ) : (
-            <Play className="size-5 text-white" />
+            <Play className="size-5 text-foreground" />
           )}
         </span>
-      </button>
+      </Button>
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{record.title}</p>
         <p className="truncate text-sm text-muted-foreground">{record.artist}</p>
@@ -184,16 +197,21 @@ function DownloadRow({
             .join(" · ")}
         </p>
       </div>
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         type="button"
-        onClick={() => void saveToDevice(record).catch(() => toast.error("Could not export this file"))}
+        disabled={!exportBlob}
+        onClick={() => { if (exportBlob) void saveToDevice(record, exportBlob).catch(() => toast.error("Could not export this file")); }}
         className="rounded-full p-2 text-muted-foreground transition hover:text-foreground"
         title="Save file to device"
         aria-label="Save file to device"
       >
         <Save className="size-4" />
-      </button>
-      <button
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon"
         type="button"
         onClick={onRemove}
         className="rounded-full p-2 text-muted-foreground transition hover:text-destructive"
@@ -201,7 +219,7 @@ function DownloadRow({
         aria-label="Remove download"
       >
         <Trash2 className="size-4" />
-      </button>
+      </Button>
     </li>
   );
 }
