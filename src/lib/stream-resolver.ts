@@ -95,7 +95,8 @@ export async function resolveStreamInBrowser(videoId: string): Promise<ResolvedS
   const [minter, yt] = await Promise.all([minterPromise, ytPromise]);
   const pot: string = await minter.mintAsWebsafeString(videoId);
   const info = await yt.getBasicInfo(videoId, { client: "YTMUSIC", po_token: pot });
-  const format = info.chooseFormat({ type: "audio", quality: "best", format: "mp4" });
+  const supportsM4a = Boolean(document.createElement("audio").canPlayType('audio/mp4; codecs="mp4a.40.2"'));
+  const format = info.chooseFormat({ type: "audio", quality: "best", format: supportsM4a ? "mp4" : "webm" });
   let url: string = await format.decipher(yt.session.player);
   if (!url.includes("pot=")) url += `&pot=${encodeURIComponent(pot)}`;
   return {
