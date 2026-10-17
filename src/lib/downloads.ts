@@ -1,7 +1,6 @@
 // Offline downloads: stores audio, cover art, lyrics and full song details in IndexedDB.
 import { dbDelete, dbGet, dbGetAll, dbPut } from "./storage";
 import type { LyricsResult, SongItem } from "./music-types";
-import { getDownloadMeta } from "./download.functions";
 import { getLyrics } from "./music.functions";
 
 export interface DownloadRecord {
@@ -78,13 +77,25 @@ export async function downloadSong(
   const existing = await getDownload(song.id);
   if (existing) return existing;
 
-  const meta = await getDownloadMeta({ data: { videoId: song.id } });
-  if (meta.error) throw new Error(meta.error);
+  const { resolveStreamInBrowser } = await import("./stream-resolver");
+  const stream = await resolveStreamInBrowser(song.id);
+  const meta = {
+    ...stream,
+    cover: song.thumbnail,
+    lengthSeconds: stream.lengthSeconds,
+  };
+  if (!Number.isSafeInteger(stream.contentLength) || stream.contentLength <= 0) {
+    throw new Error("The full audio file is unavailable for this song. Please try another song.");
+  }
+  const query = new URLSearchParams({ src: stream.url, len: String(stream.contentLength) });
 
   const { blob: audio, type } = await fetchWithProgress(
-    `/api/public/audio/${song.id}`,
+    `/api/public/audio/${encodeURIComponent(song.id)}?${query}`,
     (f) => onProgress?.(f * 0.9),
   );
+  if (audio.size !== stream.contentLength) {
+    throw new Error("The song download was incomplete. Please try again.");
+  }
 
   const coverUrl = song.thumbnail ?? meta.cover;
   let cover: Blob | undefined;
