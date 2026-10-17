@@ -34,7 +34,7 @@ export const Route = createFileRoute("/")({
   component: ExplorePage,
   errorComponent: ({ error }) => (
     <p role="alert" className="p-8 text-sm text-muted-foreground">
-      {error.message}
+      {error instanceof Error ? error.message : "Music could not be loaded."}
     </p>
   ),
 });

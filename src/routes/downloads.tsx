@@ -69,8 +69,10 @@ function DownloadsPage() {
     const url = URL.createObjectURL(record.audio);
     urlRef.current = url;
     audio.src = url;
-    void audio.play().catch(() => toast.error("Could not play this saved file"));
-    setPlayingId(record.id);
+    void audio.play().then(() => setPlayingId(record.id)).catch(() => {
+      setPlayingId(null);
+      toast.error("This browser cannot play the saved audio format. You can still save the file to your device.");
+    });
   };
 
   const remove = async (record: DownloadRecord) => {

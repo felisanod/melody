@@ -37,7 +37,7 @@ export const Route = createFileRoute("/playlist/$playlistId")({
   component: PlaylistPage,
   errorComponent: ({ error }) => (
     <p role="alert" className="p-8 text-sm text-muted-foreground">
-      {error.message}
+      {error instanceof Error ? error.message : "This playlist could not be loaded."}
     </p>
   ),
 });

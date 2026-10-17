@@ -1,14 +1,15 @@
-import { describe, expect, test } from "bun:test";
+import { describe, it as test } from "node:test";
+import { doesNotThrow, throws } from "node:assert/strict";
 import { assertCompleteAudio } from "./audio-transfer";
 
 describe("full song downloads", () => {
   test("accepts a complete multi-chunk song", () => {
-    expect(() => assertCompleteAudio(3459077, 3459077)).not.toThrow();
+    doesNotThrow(() => assertCompleteAudio(3459077, 3459077));
   });
   test("rejects the previously truncated first megabyte", () => {
-    expect(() => assertCompleteAudio(1048576, 3459077)).toThrow();
+    throws(() => assertCompleteAudio(1048576, 3459077));
   });
   test("rejects an empty song", () => {
-    expect(() => assertCompleteAudio(0, 0)).toThrow();
+    throws(() => assertCompleteAudio(0, 0));
   });
 });
