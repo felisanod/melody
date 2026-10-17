@@ -7,6 +7,14 @@ import { useSettings } from "@/context/settings-context";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/settings")({
+  head: () => ({ meta: [
+    { title: "Settings — flex-web" },
+    { name: "description", content: "Music playback and appearance preferences in flex-web." },
+    { property: "og:title", content: "Settings — flex-web" },
+    { property: "og:description", content: "Music playback and appearance preferences in flex-web." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: SettingsPage,
 });
 

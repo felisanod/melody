@@ -7,6 +7,14 @@ import { useRoomSync } from "@/hooks/use-room-sync";
 import type { RoomMessage } from "@/lib/music-types";
 
 export const Route = createFileRoute("/listen-together/room")({
+  head: () => ({ meta: [
+    { title: "Listening Room — flex-web" },
+    { name: "description", content: "Your shared music listening room in flex-web." },
+    { property: "og:title", content: "Listening Room — flex-web" },
+    { property: "og:description", content: "Your shared music listening room in flex-web." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: RoomPage,
 });
 

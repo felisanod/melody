@@ -14,6 +14,8 @@ const albumQuery = (browseId: string) =>
 export const Route = createFileRoute("/album/$browseId")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Album — flex-web" },
       { name: "description", content: "Album tracklist with instant playback and synced lyrics." },
       { property: "og:title", content: "Album — flex-web" },

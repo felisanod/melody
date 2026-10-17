@@ -14,6 +14,8 @@ const artistQuery = (artistId: string) =>
 export const Route = createFileRoute("/artist/$artistId")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Artist — flex-web" },
       {
         name: "description",
