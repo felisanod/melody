@@ -113,7 +113,7 @@ export async function downloadSong(
   }
   onProgress?.(0.95);
 
-  const artist = song.artists?.map((a) => a.name).filter(Boolean).join(", ") || meta.author;
+  const artist = song.artists?.map((a) => a.name).filter(Boolean).join(", ") || meta.author || "Unknown artist";
   let lyrics: LyricsResult | undefined;
   try {
     const durationSeconds = song.durationSeconds ?? meta.lengthSeconds ?? undefined;
@@ -131,7 +131,7 @@ export async function downloadSong(
   const record: DownloadRecord = {
     id: song.id,
     song,
-    title: song.title || meta.title,
+    title: song.title || meta.title || song.id,
     artist,
     album: song.album?.name,
     durationSeconds: song.durationSeconds ?? meta.lengthSeconds ?? undefined,
