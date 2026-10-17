@@ -1,4 +1,4 @@
-- [ ] Make song downloads actually complete (full audio)
-- [ ] Verify real download, stored cover/details, offline playback, export tags, and deletion
+- [x] Make song downloads actually complete (full audio)
+- [x] Verify real download, stored cover/details, offline playback, export tags, and deletion
 - [x] Download buttons on album + now-playing
 - [x] Embed cover/details into exported file
