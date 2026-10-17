@@ -36,11 +36,12 @@ async function createMinter(): Promise<any> {
   const { BotGuardClient, getChallenge } = await import("bgutils-js/botguard");
   const { WebPoMinter } = await import("bgutils-js/webpo");
   const challenge: any = await getChallenge({ requestKey: REQUEST_KEY, fetchFunction: proxied as typeof fetch });
+  if (!challenge?.program || !challenge?.globalName) throw new Error("Download verification is unavailable. Please try again.");
   let js = challenge?.interpreterJavascript?.privateDoNotAccessOrElseSafeScriptWrappedValue;
   if (!js) {
     const src = challenge?.interpreterUrl?.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue;
     if (!src) throw new Error("robot check unavailable");
-    js = await (await proxied(`https:${src}`)).text();
+    js = await (await proxied(new URL(src, "https://www.youtube.com").href)).text();
   }
   new Function(js)();
   const bg = await BotGuardClient.create({

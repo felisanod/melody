@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 const ALLOWED_HOSTS = [
   "i.ytimg.com",
   "yt3.ggpht.com",
+  "yt3.googleusercontent.com",
   "lh3.googleusercontent.com",
   "music.youtube.com",
 ];

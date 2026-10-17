@@ -2,6 +2,7 @@
 import { dbDelete, dbGet, dbGetAll, dbPut } from "./storage";
 import type { LyricsResult, SongItem } from "./music-types";
 import { getLyrics } from "./music.functions";
+import { assertCompleteAudio } from "./audio-transfer";
 
 export interface DownloadRecord {
   id: string;
@@ -93,9 +94,7 @@ export async function downloadSong(
     `/api/public/audio/${encodeURIComponent(song.id)}?${query}`,
     (f) => onProgress?.(f * 0.9),
   );
-  if (audio.size !== stream.contentLength) {
-    throw new Error("The song download was incomplete. Please try again.");
-  }
+  assertCompleteAudio(audio.size, stream.contentLength);
 
   const coverUrl = song.thumbnail ?? meta.cover;
   let cover: Blob | undefined;
@@ -199,17 +198,27 @@ export async function buildTaggedFile(record: DownloadRecord): Promise<Blob> {
 }
 
 /** Saves an already-downloaded track to the device as a tagged audio file. */
-export async function saveToDevice(record: DownloadRecord): Promise<void> {
-  const blob = await buildTaggedFile(record);
+export async function saveToDevice(record: DownloadRecord, preparedBlob?: Blob): Promise<void> {
+  const blob = preparedBlob ?? await buildTaggedFile(record);
+  const safe = `${record.artist} - ${record.title}`.replace(/[\\/:*?"<>|]/g, "_");
+  const filename = `${safe}.${extensionFor(record.mimeType)}`;
+  const file = new File([blob], filename, { type: blob.type });
+  if (matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: filename });
+      return;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+    }
+  }
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  const safe = `${record.artist} - ${record.title}`.replace(/[\\/:*?"<>|]/g, "_");
   link.href = url;
-  link.download = `${safe}.${extensionFor(record.mimeType)}`;
+  link.download = filename;
   document.body.appendChild(link);
   link.click();
   link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
 
 export function formatBytes(bytes: number): string {
