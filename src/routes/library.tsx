@@ -50,7 +50,12 @@ function DownloadsPage() {
 
   useEffect(() => {
     refresh();
+    const onFocus = () => refresh();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
     return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
       if (urlRef.current) URL.revokeObjectURL(urlRef.current);
     };
   }, []);
