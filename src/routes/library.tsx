@@ -13,7 +13,7 @@ import {
 } from "@/lib/downloads";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/downloads")({
+export const Route = createFileRoute("/library")({
   head: () => ({
     meta: [
       { title: "Downloads — flex-web" },
