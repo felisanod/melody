@@ -16,6 +16,7 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as ListenTogetherRouteImport } from './routes/listen-together'
+import { Route as MoodsRouteImport } from './routes/moods'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AlbumBrowseIdRouteImport } from './routes/album.$browseId'
@@ -60,6 +61,11 @@ const LibraryRoute = LibraryRouteImport.update({
 const ListenTogetherRoute = ListenTogetherRouteImport.update({
   id: '/listen-together',
   path: '/listen-together',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MoodsRoute = MoodsRouteImport.update({
+  id: '/moods',
+  path: '/moods',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
   '/listen-together': typeof ListenTogetherRouteWithChildren
+  '/moods': typeof MoodsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
   '/listen-together': typeof ListenTogetherRouteWithChildren
+  '/moods': typeof MoodsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
   '/listen-together': typeof ListenTogetherRouteWithChildren
+  '/moods': typeof MoodsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/library'
     | '/listen-together'
+    | '/moods'
     | '/search'
     | '/settings'
     | '/album/$browseId'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/library'
     | '/listen-together'
+    | '/moods'
     | '/search'
     | '/settings'
     | '/album/$browseId'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/library'
     | '/listen-together'
+    | '/moods'
     | '/search'
     | '/settings'
     | '/album/$browseId'
@@ -239,6 +251,7 @@ export interface RootRouteChildren {
   HomeRoute: typeof HomeRoute
   LibraryRoute: typeof LibraryRoute
   ListenTogetherRoute: typeof ListenTogetherRouteWithChildren
+  MoodsRoute: typeof MoodsRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
   AlbumBrowseIdRoute: typeof AlbumBrowseIdRoute
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       path: '/listen-together'
       fullPath: '/listen-together'
       preLoaderRoute: typeof ListenTogetherRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/moods': {
+      id: '/moods'
+      path: '/moods'
+      fullPath: '/moods'
+      preLoaderRoute: typeof MoodsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -394,6 +414,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeRoute: HomeRoute,
   LibraryRoute: LibraryRoute,
   ListenTogetherRoute: ListenTogetherRouteWithChildren,
+  MoodsRoute: MoodsRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
   AlbumBrowseIdRoute: AlbumBrowseIdRoute,
