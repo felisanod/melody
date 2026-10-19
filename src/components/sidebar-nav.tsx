@@ -4,7 +4,6 @@ import {
   HardDriveDownload,
   Home,
   History,
-  Library,
   ListMusic,
   Music2,
   Settings,
