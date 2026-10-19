@@ -19,6 +19,7 @@ const SIDEBAR_ITEMS = [
   { to: "/", label: "Home", icon: Home },
   { to: "/charts", label: "Charts", icon: Music2 },
   { to: "/search", label: "Search", icon: Compass },
+  { to: "/moods", label: "Mood Mix", icon: Sparkles },
   { to: "/library", label: "Downloads", icon: HardDriveDownload },
   { to: "/history", label: "History", icon: History },
   { to: "/listen-together", label: "Listen Together", icon: Volume2 },
