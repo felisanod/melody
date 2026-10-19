@@ -4,7 +4,6 @@ import {
   HardDriveDownload,
   Home,
   History,
-  Library,
   ListMusic,
   Music2,
   Settings,
@@ -20,9 +19,8 @@ const SIDEBAR_ITEMS = [
   { to: "/", label: "Home", icon: Home },
   { to: "/charts", label: "Charts", icon: Music2 },
   { to: "/search", label: "Search", icon: Compass },
-  { to: "/library", label: "Library", icon: Library },
+  { to: "/library", label: "Downloads", icon: HardDriveDownload },
   { to: "/history", label: "History", icon: History },
-  { to: "/downloads", label: "Downloads", icon: HardDriveDownload },
   { to: "/listen-together", label: "Listen Together", icon: Volume2 },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
@@ -135,7 +133,7 @@ export function BottomNav() {
         <BottomLink to="/" label="Home" icon={Home} />
         <BottomLink to="/charts" label="Charts" icon={Music2} />
         <BottomLink to="/search" label="Search" icon={Compass} />
-        <BottomLink to="/library" label="Library" icon={Library} />
+        <BottomLink to="/library" label="Downloads" icon={HardDriveDownload} />
         {current ? (
           <Link
             to="/player/$videoId"
