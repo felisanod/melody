@@ -199,15 +199,15 @@ function DownloadRow({
       </div>
       <Button
         variant="ghost"
-        size="icon"
         type="button"
         disabled={!exportBlob}
         onClick={() => { if (exportBlob) void saveToDevice(record, exportBlob).catch(() => toast.error("Could not export this file")); }}
-        className="rounded-full p-2 text-muted-foreground transition hover:text-foreground"
-        title="Save file to device"
-        aria-label="Save file to device"
+        className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-muted-foreground transition hover:text-foreground"
+        title="Save file to device storage"
+        aria-label="Save file to device storage"
       >
         <Save className="size-4" />
+        <span className="text-xs font-medium">Save to device</span>
       </Button>
       <Button
         variant="ghost"
