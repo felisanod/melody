@@ -7,6 +7,7 @@ import {
   ListMusic,
   Music2,
   Settings,
+  Sparkles,
   Shuffle,
   User,
   Volume2,

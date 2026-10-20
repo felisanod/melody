@@ -40,7 +40,7 @@ export const getMoodRecommendations = createServerFn({ method: "POST" })
 
     const result = streamText({
       model: provider.responses("openai/gpt-6-astra"),
-      system:
+      instructions:
         "You are a music recommendation expert for a YouTube Music streaming app. " +
         "Given a listener's mood or musical preference, recommend 8 real, well-known songs that match it. " +
         "Prefer songs that are easy to find on YouTube Music. Give a short reason for each pick.",

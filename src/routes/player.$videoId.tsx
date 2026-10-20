@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { usePlayer } from "@/player/player-context";
-import { PlayerBar } from "@/components/player-bar";
-import { NowPlaying } from "@/components/now-playing";
-import { getLyrics } from "@/lib/music.functions";
-import type { SongItem } from "@/lib/music-types";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/player/$videoId")({
   head: () => ({
@@ -24,7 +21,7 @@ export const Route = createFileRoute("/player/$videoId")({
 });
 
 function PlayerPage() {
-  const { current, playing } = usePlayer();
+  const { current, playing, setExpanded, setNowPlayingView } = usePlayer();
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -49,12 +46,11 @@ function PlayerPage() {
           </p>
         </div>
         <p className="text-sm text-muted-foreground">{playing ? "Playing..." : "Paused"}</p>
-        <p className="text-xs text-muted-foreground">
-          Full player UI opens from the mini player at the bottom.
-        </p>
+        {current && <div className="flex justify-center gap-2">
+          <Button onClick={() => { setNowPlayingView("song"); setExpanded(true); }}>Open player</Button>
+          <Button onClick={() => { setNowPlayingView("lyrics"); setExpanded(true); }}>Lyrics</Button>
+        </div>}
       </div>
-      <PlayerBar />
-      {import.meta.env.DEV && <NowPlaying />}
     </div>
   );
 }
