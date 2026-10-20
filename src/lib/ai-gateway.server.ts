@@ -8,7 +8,7 @@ export function createLovableAiGatewayRunIdFetch(initialRunId?: string) {
   let runId = initialRunId?.trim() || undefined;
   return {
     getRunId: () => runId,
-    fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+    fetch: async (input: Parameters<typeof fetch>[0], init?: RequestInit) => {
       const headers = new Headers(init?.headers);
       if (runId && !headers.has(LOVABLE_AIG_RUN_ID_HEADER)) {
         headers.set(LOVABLE_AIG_RUN_ID_HEADER, runId);

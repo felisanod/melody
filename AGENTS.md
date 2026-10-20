@@ -55,6 +55,8 @@ src/
 ```
 
 ## Playback Engine
+- The expanded view uses mutually exclusive song, lyrics, and queue modes; hide the mini player while expanded without unmounting the playback engine.
+- App-shell service workers register only through the guarded PWA wrapper; HTML navigations use network-first caching and OAuth/API paths are excluded.
 - Downloads resolve streams dynamically in the browser and transfer bytes through the same-origin audio proxy; this keeps browser verification out of SSR and media requests on the resolving server's network.
 - Offline music remains device-local in IndexedDB, including audio and artwork, so saved tracks can play without a network connection.
 - Prefer M4A for tagged exports when the browser supports AAC; otherwise resolve WebM/Opus for offline playback and retain cover/details in the local record, since the MP4 tag writer does not support WebM.

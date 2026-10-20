@@ -1,5 +1,6 @@
 import {
   ChevronUp,
+  Mic2,
   Pause,
   Play,
   Repeat,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { Slider } from "@/components/ui/slider";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatTime, usePlayer } from "@/player/player-context";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -32,10 +34,12 @@ export function PlayerBar() {
     toggleShuffle,
     cycleRepeat,
     setExpanded,
+    expanded,
+    setNowPlayingView,
   } = usePlayer();
   const isMobile = useIsMobile();
 
-  if (!current) return null;
+  if (!current || expanded) return null;
   const RepeatIcon = repeat === "one" ? Repeat1 : Repeat;
   const max = durationMs || (current.durationSeconds ?? 0) * 1000 || 1;
 
@@ -50,6 +54,7 @@ export function PlayerBar() {
         <button
           type="button"
           onClick={() => setExpanded(true)}
+          aria-label="Open player"
           className="group flex min-w-0 flex-1 items-center gap-3 text-left"
         >
           <div className="relative size-12 shrink-0 overflow-hidden rounded-xl neu-raised-sm">
@@ -68,6 +73,9 @@ export function PlayerBar() {
           </div>
         </button>
 
+        <Button variant="ghost" size="icon" aria-label="Lyrics" title="Lyrics" onClick={() => { setNowPlayingView("lyrics"); setExpanded(true); }}>
+          <Mic2 />
+        </Button>
         <div className="flex items-center gap-1 sm:gap-2">
           <button
             type="button"

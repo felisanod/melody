@@ -1,23 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import {
-  ChevronDown,
-  GripVertical,
-  Moon,
-  Pause,
-  Play,
-  Repeat,
-  Repeat1,
-  Shuffle,
-  SkipBack,
-  SkipForward,
-  Trash2,
-  X,
-} from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-
+import { ChevronDown, GripVertical, Moon, Pause, Play, Repeat, Repeat1, Shuffle, SkipBack, SkipForward, Trash2, X } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { DownloadButton } from "@/components/download-button";
-import { getLyrics } from "@/lib/music.functions";
+import { LyricsPane } from "@/components/lyrics-pane";
 import type { SongItem } from "@/lib/music-types";
 import { cn } from "@/lib/utils";
 import { useSleepTimer } from "@/hooks/use-sleep-timer";
@@ -25,83 +11,6 @@ import { formatTime, usePlayer } from "@/player/player-context";
 
 function artistNames(song?: SongItem) {
   return song?.artists.map((a) => a.name).join(", ") ?? "";
-}
-
-function LyricsPane() {
-  const { current, positionMs, seek } = usePlayer();
-  const listRef = useRef<HTMLDivElement>(null);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["lyrics", current?.id],
-    enabled: Boolean(current),
-    staleTime: 60 * 60 * 1000,
-    queryFn: () => {
-      if (!current) return Promise.resolve({ synced: [] });
-      return getLyrics({
-        data: {
-          title: current.title,
-          artist: artistNames(current),
-          durationSeconds: current.durationSeconds,
-        },
-      });
-    },
-  });
-
-  const activeIndex = useMemo(() => {
-    if (!data?.synced.length) return -1;
-    let found = -1;
-    data.synced.forEach((line, i) => {
-      if (line.timeMs <= positionMs + 200) found = i;
-    });
-    return found;
-  }, [data, positionMs]);
-
-  useEffect(() => {
-    const container = listRef.current;
-    if (!container || activeIndex < 0) return;
-    const node = container.querySelector<HTMLElement>(`[data-line="${activeIndex}"]`);
-    node?.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [activeIndex]);
-
-  if (isLoading)
-    return <p className="py-10 text-center text-sm text-muted-foreground">Looking for lyrics…</p>;
-
-  if (data?.synced.length) {
-    return (
-      <div ref={listRef} className="max-h-[52vh] space-y-1 overflow-y-auto pr-2">
-        {data.synced.map((line, i) => (
-          <button
-            key={`${line.timeMs}-${i}`}
-            data-line={i}
-            type="button"
-            onClick={() => seek(line.timeMs)}
-            className={cn(
-              "block w-full text-balance rounded-lg px-3 py-2 text-left font-display text-lg leading-snug transition-colors",
-              i === activeIndex
-                ? "neu-inset-sm text-accent"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {line.text || "♪"}
-          </button>
-        ))}
-      </div>
-    );
-  }
-
-  if (data?.plain) {
-    return (
-      <pre className="max-h-[52vh] overflow-y-auto whitespace-pre-wrap font-sans text-sm leading-relaxed text-muted-foreground">
-        {data.plain}
-      </pre>
-    );
-  }
-
-  return (
-    <p className="py-10 text-center text-sm text-muted-foreground">
-      No lyrics found for this track yet.
-    </p>
-  );
 }
 
 function QueuePane() {
@@ -114,13 +23,13 @@ function QueuePane() {
         <p className="text-xs uppercase tracking-widest text-muted-foreground">
           {queue.length} in queue
         </p>
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={clearQueue}
           className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs text-muted-foreground transition hover:bg-secondary/50 hover:text-foreground"
         >
           <Trash2 className="size-3.5" /> Clear
-        </button>
+        </Button>
       </div>
       <div className="max-h-[48vh] space-y-1 overflow-y-auto pr-2">
         {queue.map((song, i) => (
@@ -141,7 +50,7 @@ function QueuePane() {
             )}
           >
             <GripVertical className="size-4 cursor-grab text-muted-foreground/60" />
-            <button
+            <Button variant="ghost"
               type="button"
               onClick={() => playAt(i)}
               className="flex min-w-0 flex-1 items-center gap-3 text-left"
@@ -168,14 +77,14 @@ function QueuePane() {
                   {artistNames(song)}
                 </span>
               </span>
-            </button>
-            <button
+            </Button>
+            <Button variant="ghost"
               type="button"
               onClick={() => removeAt(i)}
               className="rounded-full p-1.5 text-muted-foreground opacity-0 transition hover:bg-secondary hover:text-foreground group-hover:opacity-100 neu-raised-sm"
             >
               <X className="size-4" />
-            </button>
+            </Button>
           </div>
         ))}
       </div>
@@ -184,168 +93,54 @@ function QueuePane() {
 }
 
 export function NowPlaying() {
-  const {
-    current,
-    playing,
-    positionMs,
-    durationMs,
-    toggle,
-    next,
-    previous,
-    seek,
-    shuffle,
-    repeat,
-    toggleShuffle,
-    cycleRepeat,
-    setExpanded,
-  } = usePlayer();
-  const [tab, setTab] = useState<"queue" | "lyrics">("lyrics");
+  const { current, playing, positionMs, durationMs, toggle, next, previous, seek, shuffle, repeat,
+    toggleShuffle, cycleRepeat, setExpanded, nowPlayingView: tab, setNowPlayingView: setTab } = usePlayer();
   const sleep = useSleepTimer();
-
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const close = (event: KeyboardEvent) => { if (event.key === "Escape") setExpanded(false); };
+    window.addEventListener("keydown", close);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", close); };
+  }, [setExpanded]);
   if (!current) return null;
   const RepeatIcon = repeat === "one" ? Repeat1 : Repeat;
-
+  const max = durationMs || (current.durationSeconds ?? 0) * 1000 || 1;
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto neu-inset">
-      {current.thumbnail && (
-        <img
-          src={current.thumbnail}
-          alt=""
-          aria-hidden
-          className="pointer-events-none fixed inset-0 size-full scale-125 object-cover opacity-20 blur-3xl"
-        />
-      )}
-      <div className="relative mx-auto max-w-6xl px-4 pb-16 pt-4 sm:px-8">
-        <button
-          type="button"
-          onClick={() => setExpanded(false)}
-          className="mb-6 inline-flex items-center gap-2 rounded-full neu-raised px-4 py-2 text-sm text-muted-foreground transition hover:text-foreground"
-        >
-          <ChevronDown className="size-4" /> Close
-        </button>
-
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,420px)_1fr]">
-          <div>
-            <div className="aspect-square w-full overflow-hidden rounded-3xl bg-secondary shadow-2xl neu-raised-lg">
-              {current.thumbnail && (
-                <img
-                  src={current.thumbnail}
-                  alt={current.title}
-                  className="size-full object-cover"
-                />
-              )}
-            </div>
-            <h1 className="mt-6 text-balance font-display text-3xl font-semibold tracking-tight">
-              {current.title}
-            </h1>
-            <p className="mt-1 text-muted-foreground">{artistNames(current)}</p>
-            <div className="mt-3 flex justify-center">
-              <DownloadButton key={current.id} song={current} withLabel className="neu-raised-sm px-4" />
-            </div>
-
-            <Slider
-              className="mt-6"
-              value={[Math.min(positionMs, durationMs || positionMs)]}
-              max={durationMs || (current.durationSeconds ?? 0) * 1000 || 1}
-              step={1000}
-              onValueChange={([value]) => seek(value ?? 0)}
-            />
-            <div className="mt-2 flex justify-between text-xs tabular-nums text-muted-foreground">
-              <span>{formatTime(positionMs)}</span>
-              <span>{formatTime(durationMs)}</span>
-            </div>
-
-            {sleep.active && (
-              <p className="mt-1 text-center text-xs text-accent">
-                Sleep: {sleep.formatTime(sleep.remaining)}
-              </p>
-            )}
-
-            <div className="mt-4 flex items-center justify-center gap-4">
-              <button
-                type="button"
-                onClick={toggleShuffle}
-                className={cn(
-                  "rounded-full p-3 transition hover:bg-secondary/50",
-                  shuffle && "text-accent",
-                )}
-              >
-                <Shuffle className="size-5" />
-              </button>
-              <button
-                type="button"
-                onClick={previous}
-                className="rounded-full p-3 transition hover:bg-secondary/50"
-              >
-                <SkipBack className="size-6 fill-current" />
-              </button>
-              <button
-                type="button"
-                onClick={toggle}
-                className="rounded-full bg-accent neu-raised text-accent-foreground transition hover:neu-inset-sm"
-              >
-                {playing ? (
-                  <Pause className="size-7 fill-current" />
-                ) : (
-                  <Play className="size-7 fill-current" />
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={next}
-                className="rounded-full p-3 transition hover:bg-secondary/50"
-              >
-                <SkipForward className="size-6 fill-current" />
-              </button>
-              <button
-                type="button"
-                onClick={cycleRepeat}
-                className={cn(
-                  "rounded-full p-3 transition hover:bg-secondary/50",
-                  repeat !== "off" && "text-accent",
-                )}
-              >
-                <RepeatIcon className="size-5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  if (sleep.active) sleep.stop();
-                  else sleep.start("30m");
-                }}
-                className={cn(
-                  "rounded-full p-3 transition hover:bg-secondary/50",
-                  sleep.active && "text-accent",
-                )}
-                title={
-                  sleep.active ? `Sleep timer: ${sleep.formatTime(sleep.remaining)}` : "Sleep timer"
-                }
-              >
-                <Moon className="size-5" />
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-border/40 bg-card/60 p-4 sm:p-6 neu-raised">
-            <div className="mb-4 inline-flex rounded-full neu-inset-sm p-1 text-sm">
-              {(["lyrics", "queue"] as const).map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setTab(key)}
-                  className={cn(
-                    "rounded-full px-4 py-1.5 capitalize transition",
-                    tab === key ? "neu-inset-sm text-accent-foreground" : "text-muted-foreground",
-                  )}
-                >
-                  {key}
-                </button>
-              ))}
-            </div>
-            {tab === "lyrics" ? <LyricsPane /> : <QueuePane />}
-          </div>
-        </div>
+    <section role="dialog" aria-modal="true" aria-label="Now playing" className="fixed inset-0 z-50 flex flex-col bg-background text-foreground">
+      <header className="mx-auto flex w-full max-w-5xl shrink-0 items-center gap-3 border-b border-border/40 px-4 py-3 sm:px-8">
+        <Button variant="ghost" size="icon" onClick={() => setExpanded(false)} aria-label="Close player" title="Close player"><ChevronDown /></Button>
+        <div className="min-w-0 flex-1"><p className="truncate font-medium">{current.title}</p><p className="truncate text-xs text-muted-foreground">{artistNames(current)}</p></div>
+        <DownloadButton key={current.id} song={current} />
+      </header>
+      <div role="tablist" aria-label="Now playing views" className="mx-auto flex w-full max-w-5xl shrink-0 border-b border-border/40 px-4 sm:px-8">
+        {(["song", "lyrics", "queue"] as const).map((key) => (
+          <Button key={key} id={`player-tab-${key}`} role="tab" aria-selected={tab === key} aria-controls="player-panel" variant="ghost" onClick={() => setTab(key)} className={cn("h-12 flex-1 rounded-none border-b-2 capitalize", tab === key ? "border-accent text-foreground" : "border-transparent text-muted-foreground")}>{key === "queue" ? "Up next" : key}</Button>
+        ))}
       </div>
-    </div>
+      <div id="player-panel" role="tabpanel" aria-labelledby={`player-tab-${tab}`} className="min-h-0 flex-1 overflow-y-auto">
+        {tab === "lyrics" ? <LyricsPane key={current.id} /> : tab === "queue" ? <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8"><QueuePane /></div> : (
+          <div className="mx-auto flex w-full max-w-lg flex-col items-center px-6 py-6">
+            <div className="aspect-square w-full max-w-80 overflow-hidden rounded-lg bg-secondary neu-raised-lg">
+              {current.thumbnail && <img src={current.thumbnail} alt={current.title} className="size-full object-cover" />}
+            </div>
+            <h1 className="mt-6 w-full break-words text-center font-display text-2xl font-semibold">{current.title}</h1>
+            <p className="mt-1 text-center text-muted-foreground">{artistNames(current)}</p>
+            <DownloadButton key={current.id} song={current} withLabel className="mt-4" />
+            <Slider aria-label="Song position" className="mt-6" value={[Math.min(positionMs, max)]} max={max} step={1000} onValueChange={([value]) => seek(value ?? 0)} />
+            <div className="mt-2 flex w-full justify-between text-xs tabular-nums text-muted-foreground"><span>{formatTime(positionMs)}</span><span>{formatTime(max)}</span></div>
+            <div className="mt-4 flex items-center justify-center gap-2 sm:gap-4">
+              <Button variant="ghost" size="icon" aria-label="Shuffle" title="Shuffle" aria-pressed={shuffle} onClick={toggleShuffle} className={cn(shuffle && "text-accent")}><Shuffle /></Button>
+              <Button variant="ghost" size="icon" aria-label="Previous song" title="Previous song" onClick={previous}><SkipBack /></Button>
+              <Button size="icon" aria-label={playing ? "Pause" : "Play"} onClick={toggle} className="size-14 rounded-full">{playing ? <Pause /> : <Play />}</Button>
+              <Button variant="ghost" size="icon" aria-label="Next song" title="Next song" onClick={next}><SkipForward /></Button>
+              <Button variant="ghost" size="icon" aria-label={`Repeat: ${repeat}`} title={`Repeat: ${repeat}`} onClick={cycleRepeat} className={cn(repeat !== "off" && "text-accent")}><RepeatIcon /></Button>
+              <Button variant="ghost" size="icon" aria-label="Sleep timer" title={sleep.active ? `Sleep timer: ${sleep.formatTime(sleep.remaining)}` : "Sleep timer"} onClick={() => sleep.active ? sleep.stop() : sleep.start("30m")} className={cn(sleep.active && "text-accent")}><Moon /></Button>
+            </div>
+            {sleep.active && <p className="mt-2 text-xs text-accent">Sleep: {sleep.formatTime(sleep.remaining)}</p>}
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
