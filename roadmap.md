@@ -2,6 +2,6 @@
 - [x] Verify real download, stored cover/details, offline playback, export tags, and deletion
 - [x] Download buttons on album + now-playing
 - [x] Embed cover/details into exported file
-- [ ] Fix existing AI recommendation errors
-- [ ] Replace the player with a dedicated lyrics view when Lyrics is selected
-- [ ] Verify PWA installation configuration and preview safety
+- [x] Fix existing AI recommendation errors
+- [x] Replace the player with a dedicated lyrics view when Lyrics is selected
+- [x] Verify PWA installation configuration and preview safety
