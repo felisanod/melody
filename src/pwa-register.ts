@@ -23,8 +23,9 @@ async function unregisterAppWorkers() {
     registrations
       .filter(
         (registration) =>
-          new URL(registration.active?.scriptURL ?? APP_WORKER_PATH, location.origin).pathname ===
-          APP_WORKER_PATH,
+          [registration.active, registration.waiting, registration.installing].some(
+            (worker) => worker && new URL(worker.scriptURL, location.origin).pathname === APP_WORKER_PATH,
+          ),
       )
       .map((registration) => registration.unregister()),
   );

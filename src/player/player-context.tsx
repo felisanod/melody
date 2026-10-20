@@ -38,6 +38,7 @@ interface PlayerState {
   shuffle: boolean;
   repeat: RepeatMode;
   expanded: boolean;
+  nowPlayingView: "song" | "lyrics" | "queue";
 }
 
 interface PlayerApi extends PlayerState {
@@ -60,6 +61,7 @@ interface PlayerApi extends PlayerState {
   moveItem: (from: number, to: number) => void;
   clearQueue: () => void;
   setExpanded: (value: boolean) => void;
+  setNowPlayingView: (view: "song" | "lyrics" | "queue") => void;
   likeCurrent: () => void;
   likeVideo: (videoId: string, like: boolean) => Promise<void>;
   removeSongFromLibrary: (videoId: string) => Promise<void>;
@@ -111,6 +113,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState<RepeatMode>("off");
   const [expanded, setExpanded] = useState(false);
+  const [nowPlayingView, setNowPlayingView] = useState<"song" | "lyrics" | "queue">("song");
 
   const playerRef = useRef<any>(null);
   const loadedIdRef = useRef<string | null>(null);
@@ -463,6 +466,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       shuffle,
       repeat,
       expanded,
+      nowPlayingView,
+      setNowPlayingView,
       playSong,
       playQueue,
       playAt,
@@ -566,6 +571,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       shuffle,
       repeat,
       expanded,
+      nowPlayingView,
       playSong,
       playQueue,
       playAt,

@@ -70,7 +70,7 @@ export const getMoodRecommendations = createServerFn({ method: "POST" })
       suggestions.slice(0, 8).map(async (s) => {
         try {
           const shelves = await searchMusic(`${s.title} ${s.artist}`, "songs");
-          const song = shelves.flatMap((shelf) => shelf.songs ?? []).at(0) ?? null;
+          const song = shelves.flatMap((shelf) => shelf.items).find((item): item is SongItem => item.kind === "song") ?? null;
           return { title: s.title, artist: s.artist, reason: s.reason, song };
         } catch {
           return { title: s.title, artist: s.artist, reason: s.reason, song: null };
