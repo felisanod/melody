@@ -93,7 +93,7 @@ function DownloadsPage() {
   return (
     <div className="mx-auto w-full max-w-4xl px-4 pb-32 pt-6">
       <header className="mb-6 flex items-center gap-3">
-        <div className="flex size-11 items-center justify-center rounded-2xl neu-raised-sm">
+        <div className="flex size-11 items-center justify-center rounded-lg bg-card">
           <HardDriveDownload className="size-5 text-accent" />
         </div>
         <div>
@@ -110,12 +110,11 @@ function DownloadsPage() {
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading saved songs…</p>
       ) : records.length === 0 ? (
-        <div className="rounded-2xl neu-raised-sm p-8 text-center">
+        <div className="py-12 text-center">
           <Download className="mx-auto size-6 text-muted-foreground" />
           <p className="mt-3 font-medium">No downloads yet</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            Use the download button on any song to keep it on this device — cover art, lyrics and
-            song details are saved too.
+            Your saved songs will appear here.
           </p>
         </div>
       ) : (
@@ -166,12 +165,12 @@ function DownloadRow({
   const lyricCount = record.lyrics?.synced?.length ?? 0;
 
   return (
-    <li className="flex items-center gap-3 rounded-2xl neu-raised-sm p-3">
+    <li className="flex flex-wrap items-center gap-3 border-b border-border p-3">
       <Button
         variant="ghost"
         type="button"
         onClick={onPlay}
-        className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-secondary"
+        className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-secondary"
         aria-label={playing ? "Pause" : "Play"}
       >
         {coverUrl ? (
@@ -187,7 +186,7 @@ function DownloadRow({
           )}
         </span>
       </Button>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-32">
         <p className="truncate font-medium">{record.title}</p>
         <p className="truncate text-sm text-muted-foreground">{record.artist}</p>
         <p className="mt-0.5 truncate text-xs text-muted-foreground">

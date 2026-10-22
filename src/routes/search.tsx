@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search as SearchIcon } from "lucide-react";
@@ -87,14 +88,14 @@ function SearchPage() {
             onBlur={() => window.setTimeout(() => setFocused(false), 150)}
             placeholder="Songs, albums, artists…"
             aria-label="Search music"
-            className="w-full rounded-full border border-border/50 py-4 pl-12 pr-4 text-base outline-none transition focus:border-accent/50 neu-inset"
+            className="w-full rounded-full border border-border/50 py-4 pl-12 pr-4 text-base outline-none transition focus:border-accent/50 bg-secondary"
           />
         </form>
         {focused && (suggestions.data?.length ?? 0) > 0 && (
-          <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-2xl border border-border/40 bg-card neu-raised">
-            {suggestions.data!.map((item) => (
+          <ul className="absolute z-20 mt-2 w-full overflow-hidden rounded-lg border border-border/40 bg-card bg-card">
+            {suggestions.data?.map((item) => (
               <li key={item}>
-                <button
+                <Button variant="ghost"
                   type="button"
                   onMouseDown={() => {
                     setTerm(item);
@@ -104,7 +105,7 @@ function SearchPage() {
                 >
                   <SearchIcon className="size-4 text-muted-foreground" />
                   {item}
-                </button>
+                </Button>
               </li>
             ))}
           </ul>
@@ -113,19 +114,19 @@ function SearchPage() {
 
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((key) => (
-          <button
+          <Button variant="ghost"
             key={key}
             type="button"
             onClick={() => void navigate({ search: (prev) => ({ ...prev, filter: key }) })}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm capitalize transition neu-raised-sm",
+              "rounded-full px-4 py-1.5 text-sm capitalize transition bg-secondary",
               key === filter
-                ? "text-accent-foreground neu-inset-sm"
-                : "text-muted-foreground hover:text-foreground hover:neu-inset-sm",
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary",
             )}
           >
             {key}
-          </button>
+          </Button>
         ))}
       </div>
 

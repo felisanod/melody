@@ -26,12 +26,12 @@ function PlayerPage() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center space-y-4">
-        <div className="neu-raised-lg mx-auto flex size-48 items-center justify-center rounded-3xl">
+        <div className="bg-card mx-auto flex size-48 items-center justify-center rounded-lg">
           {current?.thumbnail ? (
             <img
               src={current.thumbnail}
               alt={current.title}
-              className="size-full rounded-3xl object-cover"
+              className="size-full rounded-lg object-cover"
             />
           ) : (
             <p className="text-muted-foreground">No track</p>

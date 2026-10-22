@@ -26,9 +26,8 @@
 - `src/context/settings-context.tsx` — manages light/dark/system theme
 - Theme persisted in `localStorage` as `flex-web.theme`
 - Dark mode uses `.dark` class on `<html>` element
-- Neomorphic shadows via CSS custom properties in `src/styles.css`
-- Light neomorphic: white cards on gray background with dual shadows
-- Dark neomorphic: dark cards on darker background with reversed shadows
+- Flat surface, border, and accent roles are centralized in `src/styles.css`; shared Button variants provide consistent interactive states without decorative dual shadows.
+- App branding uses one bundled icon source, with downscaled public PWA and favicon derivatives to keep installed and in-app identity consistent.
 
 ## Architecture
 ```
@@ -72,7 +71,6 @@ src/
 - Translation: `src/lib/translation.ts` (OpenRouter, DeepL, Romanization, Transcription)
 - IndexedDB storage: `src/lib/storage.ts` (tracks, artists, albums, playlists, lyrics, history, downloads, settings, searchHistory, queue)
 - Last.fm: `src/lib/lastfm.server.ts` (scrobble, now playing, top charts, similar artists)
-- Room Sync: `src/lib/room-sync.ts` (in-memory room engine with host/player sync, chat, ping/pong)
 - Discord Rich Presence: `src/lib/discord-presence.ts` (presence sync, player-based updates)
 - Import/Export: `src/lib/import-export.ts` (JSON export/import of music data, settings, queue, library)
 - Backup/Restore: `src/lib/backup.ts` (full IndexedDB backup/restore)
@@ -84,10 +82,8 @@ src/
 - `/home` — Home dashboard
 - `/charts` — Trending charts
 - `/search` — Global search with filters
-- `/library` — User library
+- `/library` — Device-local downloads
 - `/history` — Playback history
-- `/listen-together` — Shared listening rooms
-- `/listen-together/room` — Room join/create
 - `/settings` — App settings
 - `/album/$browseId` — Album detail
 - `/artist/$artistId` — Artist detail

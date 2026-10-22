@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Play, Shuffle } from "lucide-react";
 
 import { EmptyState, ShelfRow, SongRow } from "@/components/music-cards";
@@ -17,8 +18,8 @@ export function DetailView({ page, round }: { page: DetailPage; round?: boolean 
     <div className="mx-auto max-w-[1600px] space-y-10 px-4 py-8 sm:px-8">
       <header className="flex flex-col gap-6 sm:flex-row sm:items-end">
         <div
-          className={`size-48 shrink-0 overflow-hidden neu-raised shadow-lg sm:size-60 ${
-            round ? "rounded-full" : "rounded-2xl"
+          className={`size-48 shrink-0 overflow-hidden bg-secondary sm:size-60 ${
+            round ? "rounded-full" : "rounded-lg"
           }`}
         >
           {page.thumbnail && (
@@ -37,20 +38,20 @@ export function DetailView({ page, round }: { page: DetailPage; round?: boolean 
           )}
           {songs.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-2">
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => playQueue(songs, 0)}
-                className="inline-flex items-center gap-2 rounded-full neu-raised px-5 py-2.5 text-sm font-medium text-accent-foreground transition hover:neu-inset-sm"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
               >
                 <Play className="size-4 fill-current" /> Play
-              </button>
-              <button
+              </Button>
+              <Button variant="ghost"
                 type="button"
                 onClick={shufflePlay}
-                className="inline-flex items-center gap-2 rounded-full neu-raised px-5 py-2.5 text-sm font-medium transition hover:neu-inset-sm"
+                className="inline-flex items-center gap-2 rounded-full bg-card px-5 py-2.5 text-sm font-medium transition hover:bg-secondary"
               >
                 <Shuffle className="size-4" /> Shuffle
-              </button>
+              </Button>
             </div>
           )}
         </div>

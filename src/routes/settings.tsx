@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 import { ChevronDown, ChevronRight, Moon, Settings2, Sun } from "lucide-react";
@@ -30,10 +31,10 @@ function SettingsPage() {
     <div className="mx-auto max-w-[1600px] space-y-6 px-4 py-8 sm:px-8">
       <div>
         <h1 className="font-display text-4xl font-semibold tracking-tight">Settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Manage your account and preferences</p>
+        <p className="mt-1 text-sm text-muted-foreground">Playback and appearance preferences</p>
       </div>
 
-      <div className="neu-raised rounded-2xl overflow-hidden">
+      <div className="border-b border-border overflow-hidden">
         <SectionHeader
           title="Appearance"
           icon={<Moon className="size-5" />}
@@ -47,7 +48,7 @@ function SettingsPage() {
         )}
       </div>
 
-      <div className="neu-raised rounded-2xl overflow-hidden">
+      <div className="border-b border-border overflow-hidden">
         <SectionHeader
           title="Playback"
           icon={<Settings2 className="size-5" />}
@@ -64,58 +65,7 @@ function SettingsPage() {
         )}
       </div>
 
-      <div className="neu-raised rounded-2xl overflow-hidden">
-        <SectionHeader
-          title="Integrations"
-          icon={<Sun className="size-5" />}
-          open={openSection === "integrations"}
-          onToggle={() => toggleSection("integrations")}
-        />
-        {openSection === "integrations" && (
-          <div className="px-6 pb-6 pt-4 space-y-6">
-            <div className="neu-raised-sm rounded-xl p-4 space-y-3">
-              <p className="text-sm font-medium">Last.fm</p>
-              <p className="text-xs text-muted-foreground">
-                Scrobble tracks, view Now Playing, Top Charts, and similar artists.
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="API Key"
-                  className="neu-inset-sm flex-1 rounded-lg border border-border/50 bg-transparent px-3 py-2 text-sm outline-none"
-                />
-                <button
-                  type="button"
-                  className="rounded-lg neu-raised-sm px-4 py-2 text-sm font-medium text-accent-foreground transition hover:neu-inset-sm"
-                >
-                  Connect
-                </button>
-              </div>
-            </div>
-            <div className="neu-raised-sm rounded-xl p-4 space-y-3">
-              <p className="text-sm font-medium">Discord Rich Presence</p>
-              <p className="text-xs text-muted-foreground">
-                Sync your currently playing song to Discord.
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Client ID"
-                  className="neu-inset-sm flex-1 rounded-lg border border-border/50 bg-transparent px-3 py-2 text-sm outline-none"
-                />
-                <button
-                  type="button"
-                  className="rounded-lg neu-raised-sm px-4 py-2 text-sm font-medium text-accent-foreground transition hover:neu-inset-sm"
-                >
-                  Connect
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="neu-raised rounded-2xl overflow-hidden">
+      <div className="border-b border-border overflow-hidden">
         <SectionHeader
           title="Data"
           icon={<Settings2 className="size-5" />}
@@ -141,19 +91,7 @@ function SettingsPage() {
         )}
       </div>
 
-      <div className="neu-raised rounded-2xl overflow-hidden">
-        <SectionHeader
-          title="Account"
-          icon={<Sun className="size-5" />}
-          open={openSection === "account"}
-          onToggle={() => toggleSection("account")}
-        />
-        {openSection === "account" && (
-          <div className="px-6 pb-6 pt-4 text-sm text-muted-foreground">
-            <p>YouTube account connections will appear here.</p>
-          </div>
-        )}
-      </div>
+
     </div>
   );
 }
@@ -170,12 +108,12 @@ function SectionHeader({
   onToggle: () => void;
 }) {
   return (
-    <button
+    <Button variant="ghost"
       type="button"
       onClick={onToggle}
-      className="flex w-full items-center gap-3 px-6 py-4 text-left transition hover:bg-secondary/30"
+      className="flex h-auto w-full justify-start gap-3 px-2 py-5 text-left transition hover:bg-secondary/30"
     >
-      <div className="flex size-9 items-center justify-center rounded-lg neu-raised-sm text-accent-foreground">
+      <div className="flex size-9 items-center justify-center rounded-lg bg-card text-accent-foreground">
         {icon}
       </div>
       <span className="text-base font-semibold">{title}</span>
@@ -184,7 +122,7 @@ function SectionHeader({
       ) : (
         <ChevronRight className="ml-auto size-4 text-muted-foreground" />
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -207,20 +145,20 @@ function ThemeSelector({
       <p className="text-sm font-medium text-foreground">Theme</p>
       <div className="flex gap-2">
         {options.map(({ value, label, icon }) => (
-          <button
+          <Button variant="ghost"
             key={value}
             type="button"
             onClick={() => setTheme(value as typeof theme)}
             className={cn(
-              "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition neu-raised-sm",
+              "flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition bg-card",
               theme === value
-                ? "text-accent-foreground neu-inset-sm"
+                ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
             {icon}
             {label}
-          </button>
+          </Button>
         ))}
       </div>
     </div>
@@ -229,17 +167,17 @@ function ThemeSelector({
 
 function DataButton({ label, description }: { label: string; description: string }) {
   return (
-    <div className="neu-raised-sm rounded-xl p-4 flex items-center justify-between gap-4">
+    <div className="bg-card rounded-lg p-4 flex items-center justify-between gap-4">
       <div>
         <p className="text-sm font-medium">{label}</p>
         <p className="text-xs text-muted-foreground">{description}</p>
       </div>
-      <button
+      <Button variant="ghost"
         type="button"
-        className="rounded-lg neu-raised-sm px-3 py-1.5 text-xs font-medium text-accent-foreground transition hover:neu-inset-sm shrink-0"
+        className="rounded-lg bg-card px-3 py-1.5 text-xs font-medium text-accent-foreground transition hover:bg-secondary shrink-0"
       >
         {label}
-      </button>
+      </Button>
     </div>
   );
 }
