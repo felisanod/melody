@@ -15,13 +15,11 @@ import { Route as DownloadsRouteImport } from './routes/downloads'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as LibraryRouteImport } from './routes/library'
-import { Route as ListenTogetherRouteImport } from './routes/listen-together'
 import { Route as MoodsRouteImport } from './routes/moods'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as AlbumBrowseIdRouteImport } from './routes/album.$browseId'
 import { Route as ArtistArtistIdRouteImport } from './routes/artist.$artistId'
-import { Route as ListenTogetherRoomRouteImport } from './routes/listen-together.room'
 import { Route as PlayerVideoIdRouteImport } from './routes/player.$videoId'
 import { Route as PlaylistPlaylistIdRouteImport } from './routes/playlist.$playlistId'
 import { Route as ApiPublicCoverRouteImport } from './routes/api/public/cover'
@@ -58,11 +56,6 @@ const LibraryRoute = LibraryRouteImport.update({
   path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ListenTogetherRoute = ListenTogetherRouteImport.update({
-  id: '/listen-together',
-  path: '/listen-together',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MoodsRoute = MoodsRouteImport.update({
   id: '/moods',
   path: '/moods',
@@ -87,11 +80,6 @@ const ArtistArtistIdRoute = ArtistArtistIdRouteImport.update({
   id: '/artist/$artistId',
   path: '/artist/$artistId',
   getParentRoute: () => rootRouteImport,
-} as any)
-const ListenTogetherRoomRoute = ListenTogetherRoomRouteImport.update({
-  id: '/room',
-  path: '/room',
-  getParentRoute: () => ListenTogetherRoute,
 } as any)
 const PlayerVideoIdRoute = PlayerVideoIdRouteImport.update({
   id: '/player/$videoId',
@@ -126,13 +114,11 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
-  '/listen-together': typeof ListenTogetherRouteWithChildren
   '/moods': typeof MoodsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
-  '/listen-together/room': typeof ListenTogetherRoomRoute
   '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
   '/api/public/cover': typeof ApiPublicCoverRoute
@@ -146,13 +132,11 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
-  '/listen-together': typeof ListenTogetherRouteWithChildren
   '/moods': typeof MoodsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
-  '/listen-together/room': typeof ListenTogetherRoomRoute
   '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
   '/api/public/cover': typeof ApiPublicCoverRoute
@@ -167,13 +151,11 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/home': typeof HomeRoute
   '/library': typeof LibraryRoute
-  '/listen-together': typeof ListenTogetherRouteWithChildren
   '/moods': typeof MoodsRoute
   '/search': typeof SearchRoute
   '/settings': typeof SettingsRoute
   '/album/$browseId': typeof AlbumBrowseIdRoute
   '/artist/$artistId': typeof ArtistArtistIdRoute
-  '/listen-together/room': typeof ListenTogetherRoomRoute
   '/player/$videoId': typeof PlayerVideoIdRoute
   '/playlist/$playlistId': typeof PlaylistPlaylistIdRoute
   '/api/public/cover': typeof ApiPublicCoverRoute
@@ -189,13 +171,11 @@ export interface FileRouteTypes {
     | '/history'
     | '/home'
     | '/library'
-    | '/listen-together'
     | '/moods'
     | '/search'
     | '/settings'
     | '/album/$browseId'
     | '/artist/$artistId'
-    | '/listen-together/room'
     | '/player/$videoId'
     | '/playlist/$playlistId'
     | '/api/public/cover'
@@ -209,13 +189,11 @@ export interface FileRouteTypes {
     | '/history'
     | '/home'
     | '/library'
-    | '/listen-together'
     | '/moods'
     | '/search'
     | '/settings'
     | '/album/$browseId'
     | '/artist/$artistId'
-    | '/listen-together/room'
     | '/player/$videoId'
     | '/playlist/$playlistId'
     | '/api/public/cover'
@@ -229,13 +207,11 @@ export interface FileRouteTypes {
     | '/history'
     | '/home'
     | '/library'
-    | '/listen-together'
     | '/moods'
     | '/search'
     | '/settings'
     | '/album/$browseId'
     | '/artist/$artistId'
-    | '/listen-together/room'
     | '/player/$videoId'
     | '/playlist/$playlistId'
     | '/api/public/cover'
@@ -250,7 +226,6 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   HomeRoute: typeof HomeRoute
   LibraryRoute: typeof LibraryRoute
-  ListenTogetherRoute: typeof ListenTogetherRouteWithChildren
   MoodsRoute: typeof MoodsRoute
   SearchRoute: typeof SearchRoute
   SettingsRoute: typeof SettingsRoute
@@ -307,13 +282,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/listen-together': {
-      id: '/listen-together'
-      path: '/listen-together'
-      fullPath: '/listen-together'
-      preLoaderRoute: typeof ListenTogetherRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/moods': {
       id: '/moods'
       path: '/moods'
@@ -348,13 +316,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/artist/$artistId'
       preLoaderRoute: typeof ArtistArtistIdRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/listen-together/room': {
-      id: '/listen-together/room'
-      path: '/room'
-      fullPath: '/listen-together/room'
-      preLoaderRoute: typeof ListenTogetherRoomRouteImport
-      parentRoute: typeof ListenTogetherRoute
     }
     '/player/$videoId': {
       id: '/player/$videoId'
@@ -394,18 +355,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ListenTogetherRouteChildren {
-  ListenTogetherRoomRoute: typeof ListenTogetherRoomRoute
-}
-
-const ListenTogetherRouteChildren: ListenTogetherRouteChildren = {
-  ListenTogetherRoomRoute: ListenTogetherRoomRoute,
-}
-
-const ListenTogetherRouteWithChildren = ListenTogetherRoute._addFileChildren(
-  ListenTogetherRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChartsRoute: ChartsRoute,
@@ -413,7 +362,6 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   HomeRoute: HomeRoute,
   LibraryRoute: LibraryRoute,
-  ListenTogetherRoute: ListenTogetherRouteWithChildren,
   MoodsRoute: MoodsRoute,
   SearchRoute: SearchRoute,
   SettingsRoute: SettingsRoute,
