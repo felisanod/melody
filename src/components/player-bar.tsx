@@ -46,18 +46,18 @@ export function PlayerBar() {
   return (
     <div
       className={cn(
-        "fixed inset-x-0 z-40 border-t border-border/40 neu-raised",
+        "fixed inset-x-0 z-40 border-t border-border/40 bg-card",
         isMobile ? "bottom-16" : "bottom-0",
       )}
     >
       <div className="mx-auto flex max-w-[1600px] items-center gap-3 px-3 py-2 sm:gap-5 sm:px-6 sm:py-3">
-        <button
+        <Button variant="ghost"
           type="button"
           onClick={() => setExpanded(true)}
           aria-label="Open player"
-          className="group flex min-w-0 flex-1 items-center gap-3 text-left"
+          className="group flex h-auto min-w-0 flex-1 justify-start gap-3 p-0 text-left hover:bg-transparent"
         >
-          <div className="relative size-12 shrink-0 overflow-hidden rounded-xl neu-raised-sm">
+          <div className="relative size-12 shrink-0 overflow-hidden rounded-lg bg-card">
             {current.thumbnail && (
               <img src={current.thumbnail} alt={current.title} className="size-full object-cover" />
             )}
@@ -71,13 +71,13 @@ export function PlayerBar() {
               {current.artists.map((a) => a.name).join(", ")}
             </p>
           </div>
-        </button>
+        </Button>
 
         <Button variant="ghost" size="icon" aria-label="Lyrics" title="Lyrics" onClick={() => { setNowPlayingView("lyrics"); setExpanded(true); }}>
           <Mic2 />
         </Button>
         <div className="flex items-center gap-1 sm:gap-2">
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={toggleShuffle}
             className={cn(
@@ -86,34 +86,34 @@ export function PlayerBar() {
             )}
           >
             <Shuffle className="size-4" />
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             type="button"
             onClick={previous}
             className="rounded-full p-2 transition hover:bg-secondary/50"
           >
             <SkipBack className="size-5 fill-current" />
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             type="button"
             onClick={toggle}
             aria-label={playing ? "Pause" : "Play"}
-            className="rounded-full bg-accent neu-raised text-accent-foreground transition hover:neu-inset-sm"
+            className="size-10 shrink-0 rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90"
           >
             {playing ? (
               <Pause className="size-5 fill-current" />
             ) : (
               <Play className="size-5 fill-current" />
             )}
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             type="button"
             onClick={next}
             className="rounded-full p-2 transition hover:bg-secondary/50"
           >
             <SkipForward className="size-5 fill-current" />
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             type="button"
             onClick={cycleRepeat}
             className={cn(
@@ -122,7 +122,7 @@ export function PlayerBar() {
             )}
           >
             <RepeatIcon className="size-4" />
-          </button>
+          </Button>
         </div>
 
         <div className="hidden flex-1 items-center gap-3 md:flex">
@@ -151,7 +151,7 @@ export function PlayerBar() {
           />
         </div>
       </div>
-      <div className="h-0.5 w-full neu-inset-sm md:hidden">
+      <div className="h-0.5 w-full bg-secondary md:hidden">
         <div
           className="h-full rounded-full bg-accent transition-[width]"
           style={{ width: `${(positionMs / max) * 100}%` }}

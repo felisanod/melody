@@ -54,9 +54,9 @@ function HomeCard({
   icon: React.ReactNode;
 }) {
   return (
-    <Link to={to} className="group neu-raised rounded-2xl p-6 transition hover:neu-inset-sm">
+    <Link to={to} className="group bg-card rounded-lg p-6 transition hover:bg-secondary">
       <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-xl neu-raised-sm text-accent-foreground">
+        <div className="flex size-10 items-center justify-center rounded-lg bg-card text-accent-foreground">
           {icon}
         </div>
         <h2 className="font-display text-lg font-semibold">{title}</h2>

@@ -62,13 +62,13 @@ function MoodsPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-4 pb-32 pt-6">
       <header className="mb-6 flex items-center gap-3">
-        <div className="flex size-11 items-center justify-center rounded-2xl neu-raised-sm">
+        <div className="flex size-11 items-center justify-center rounded-lg bg-card">
           <Sparkles className="size-5 text-accent" />
         </div>
         <div>
           <h1 className="font-display text-2xl font-bold">Mood Mix</h1>
           <p className="text-sm text-muted-foreground">
-            Describe a mood or what you feel like — AI picks matching songs.
+            A mix for your moment.
           </p>
         </div>
       </header>
@@ -86,7 +86,7 @@ function MoodsPage() {
           rows={3}
           maxLength={500}
           placeholder="e.g. Late-night drive, mellow and atmospheric…"
-          className="w-full resize-none rounded-2xl bg-secondary/40 p-4 text-sm outline-none neu-inset-sm placeholder:text-muted-foreground"
+          className="w-full resize-none rounded-lg bg-secondary/40 p-4 text-sm outline-none bg-secondary placeholder:text-muted-foreground"
         />
         <Button
           type="submit"
@@ -101,17 +101,17 @@ function MoodsPage() {
       {!results && !busy ? (
         <div className="mt-6 flex flex-wrap gap-2">
           {EXAMPLES.map((example) => (
-            <button
+            <Button variant="ghost"
               key={example}
               type="button"
               onClick={() => {
                 setMood(example);
                 void submit(example);
               }}
-              className="rounded-full px-3 py-1.5 text-xs text-muted-foreground transition hover:text-foreground neu-raised-sm"
+              className="rounded-full px-3 py-1.5 text-xs text-muted-foreground transition hover:text-foreground bg-card"
             >
               {example}
-            </button>
+            </Button>
           ))}
         </div>
       ) : null}
@@ -126,7 +126,7 @@ function MoodsPage() {
                   <p className="ml-11 -mt-1 pb-1 pl-2 text-xs text-muted-foreground">{rec.reason}</p>
                 </div>
               ) : (
-                <div className="rounded-xl px-2 py-2">
+                <div className="rounded-lg px-2 py-2">
                   <p className="text-sm font-medium">
                     {rec.title} — <span className="text-muted-foreground">{rec.artist}</span>
                   </p>

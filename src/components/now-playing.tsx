@@ -45,8 +45,8 @@ function QueuePane() {
               dragFrom.current = null;
             }}
             className={cn(
-              "group flex items-center gap-2 rounded-xl px-2 py-2 transition-colors hover:bg-secondary/50",
-              i === index && "neu-inset-sm",
+              "group flex items-center gap-2 rounded-lg px-2 py-2 transition-colors hover:bg-secondary/50",
+              i === index && "bg-secondary",
             )}
           >
             <GripVertical className="size-4 cursor-grab text-muted-foreground/60" />
@@ -59,10 +59,10 @@ function QueuePane() {
                 <img
                   src={song.thumbnail}
                   alt=""
-                  className="size-10 rounded-lg object-cover neu-raised-sm"
+                  className="size-10 rounded-lg object-cover bg-card"
                 />
               ) : (
-                <span className="size-10 rounded-lg neu-raised-sm bg-secondary" />
+                <span className="size-10 rounded-lg bg-card bg-secondary" />
               )}
               <span className="min-w-0">
                 <span
@@ -81,7 +81,7 @@ function QueuePane() {
             <Button variant="ghost"
               type="button"
               onClick={() => removeAt(i)}
-              className="rounded-full p-1.5 text-muted-foreground opacity-0 transition hover:bg-secondary hover:text-foreground group-hover:opacity-100 neu-raised-sm"
+              className="rounded-full p-1.5 text-muted-foreground opacity-0 transition hover:bg-secondary hover:text-foreground group-hover:opacity-100 bg-card"
             >
               <X className="size-4" />
             </Button>
@@ -121,7 +121,7 @@ export function NowPlaying() {
       <div id="player-panel" role="tabpanel" aria-labelledby={`player-tab-${tab}`} className="min-h-0 flex-1 overflow-y-auto">
         {tab === "lyrics" ? <LyricsPane key={current.id} /> : tab === "queue" ? <div className="mx-auto max-w-3xl px-4 py-6 sm:px-8"><QueuePane /></div> : (
           <div className="mx-auto flex w-full max-w-lg flex-col items-center px-6 py-6">
-            <div className="aspect-square w-full max-w-80 overflow-hidden rounded-lg bg-secondary neu-raised-lg">
+            <div className="aspect-square w-full max-w-80 overflow-hidden rounded-lg bg-secondary bg-card">
               {current.thumbnail && <img src={current.thumbnail} alt={current.title} className="size-full object-cover" />}
             </div>
             <h1 className="mt-6 w-full break-words text-center font-display text-2xl font-semibold">{current.title}</h1>

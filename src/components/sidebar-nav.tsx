@@ -1,91 +1,47 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import {
-  Compass,
+  Search,
   HardDriveDownload,
   Home,
   History,
-  ListMusic,
   Music2,
   Settings,
   Sparkles,
-  Shuffle,
-  User,
-  Volume2,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { usePlayer } from "@/player/player-context";
+import { Button } from "@/components/ui/button";
 import { useSettings } from "@/context/settings-context";
 
 const SIDEBAR_ITEMS = [
   { to: "/", label: "Home", icon: Home },
   { to: "/charts", label: "Charts", icon: Music2 },
-  { to: "/search", label: "Search", icon: Compass },
+  { to: "/search", label: "Search", icon: Search },
   { to: "/moods", label: "Mood Mix", icon: Sparkles },
   { to: "/library", label: "Downloads", icon: HardDriveDownload },
   { to: "/history", label: "History", icon: History },
-  { to: "/listen-together", label: "Listen Together", icon: Volume2 },
   { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
 export function ThemeToggle() {
-  const { theme, setTheme, isDark } = useSettings();
+  const { setTheme, isDark } = useSettings();
   return (
-    <button
+    <Button variant="ghost" size="icon"
       type="button"
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="flex size-8 items-center justify-center rounded-full neu-raised-sm text-muted-foreground transition hover:text-foreground"
+      className="rounded-full text-muted-foreground hover:text-foreground"
       aria-label="Toggle theme"
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {isDark ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="5" />
-          <line x1="12" x2="12" y1="1" y2="3" />
-          <line x1="12" x2="12" y1="21" y2="23" />
-          <line x1="4.22" x2="5.64" y1="4.22" y2="5.64" />
-          <line x1="18.36" x2="19.78" y1="18.36" y2="19.78" />
-          <line x1="1" x2="3" y1="12" y2="12" />
-          <line x1="21" x2="23" y1="12" y2="12" />
-          <line x1="4.22" x2="5.64" y1="19.78" y2="18.36" />
-          <line x1="18.36" x2="19.78" y1="5.64" y2="4.22" />
-        </svg>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-        </svg>
-      )}
-    </button>
+      {isDark ? <Sun /> : <Moon />}
+    </Button>
   );
 }
 
 export function SidebarNav() {
   return (
-    <nav className="flex flex-col gap-0.5 px-2 py-2">
-      <div className="px-3 pb-2 pt-1">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Menu
-        </p>
-      </div>
+    <nav aria-label="Main navigation" className="flex flex-col gap-1 px-3 py-2">
       {SIDEBAR_ITEMS.map(({ to, label, icon: Icon }) => (
         <SidebarLink key={to} to={to} label={label} icon={Icon} />
       ))}
@@ -108,48 +64,27 @@ function SidebarLink({
     <Link
       to={to}
       className={cn(
-        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+        "group flex h-12 items-center gap-3 rounded-lg px-4 text-sm font-medium transition-colors",
         active
-          ? "neu-inset-sm text-accent-foreground"
-          : "text-muted-foreground hover:text-foreground hover:neu-inset-sm",
+          ? "bg-secondary text-foreground"
+          : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground",
       )}
     >
-      <div
-        className={cn(
-          "flex size-9 items-center justify-center rounded-lg transition-colors",
-          "neu-raised-sm",
-        )}
-      >
-        <Icon className="size-[18px] shrink-0" />
-      </div>
+      <Icon className={cn("size-5 shrink-0", active && "text-primary")} />
       <span className="truncate">{label}</span>
     </Link>
   );
 }
 
 export function BottomNav() {
-  const { current } = usePlayer();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border/40 neu-raised">
-      <div className="mx-auto flex max-w-md items-center justify-around px-2 py-2 sm:py-3">
+    <nav aria-label="Mobile navigation" className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <div className="mx-auto grid h-16 max-w-lg grid-cols-5 items-center px-1">
         <BottomLink to="/" label="Home" icon={Home} />
         <BottomLink to="/charts" label="Charts" icon={Music2} />
-        <BottomLink to="/search" label="Search" icon={Compass} />
+        <BottomLink to="/search" label="Search" icon={Search} />
         <BottomLink to="/library" label="Downloads" icon={HardDriveDownload} />
-        {current ? (
-          <Link
-            to="/player/$videoId"
-            params={{ videoId: current.id }}
-            className="flex flex-col items-center gap-0.5 text-accent"
-          >
-            <div className="flex size-11 items-center justify-center rounded-full neu-raised">
-              <span className="block size-8 rounded-full bg-accent" />
-            </div>
-            <span className="text-[10px] font-medium">Now</span>
-          </Link>
-        ) : (
-          <BottomLink to="/charts" label="Player" icon={ListMusic} />
-        )}
+        <BottomLink to="/moods" label="Mood Mix" icon={Sparkles} />
       </div>
     </nav>
   );
@@ -170,7 +105,7 @@ function BottomLink({
     <Link
       to={to}
       className={cn(
-        "flex flex-col items-center gap-0.5 rounded-lg px-3 py-1.5 text-xs font-medium transition",
+        "flex min-w-0 flex-col items-center gap-1 py-1.5 text-[10px] font-medium transition-colors",
         active ? "text-accent" : "text-muted-foreground hover:text-foreground",
       )}
     >
@@ -180,17 +115,3 @@ function BottomLink({
   );
 }
 
-export function SidebarFooter() {
-  return (
-    <div className="mt-auto flex items-center gap-2 border-t border-border/40 p-3">
-      <div className="flex size-9 items-center justify-center rounded-full neu-raised-sm">
-        <User className="size-4 text-muted-foreground" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium">Guest</p>
-        <p className="truncate text-xs text-muted-foreground">Sign in</p>
-      </div>
-      <ThemeToggle />
-    </div>
-  );
-}
