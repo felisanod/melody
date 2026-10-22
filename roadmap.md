@@ -5,3 +5,8 @@
 - [x] Fix existing AI recommendation errors
 - [x] Replace the player with a dedicated lyrics view when Lyrics is selected
 - [x] Verify PWA installation configuration and preview safety
+- [ ] Replace neomorphism with a conventional music-app interface
+- [ ] Remove accounts and Listen Together features
+- [ ] Replace app and installation icons
+- [ ] Verify updated navigation, appearance, and existing music flows
+- [ ] Connect GitHub through Lovable’s repository creation flow (requires user action in Project settings → Git)
