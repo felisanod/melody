@@ -1,5 +1,6 @@
 // Browser-only: passes YouTube's "not a robot" check (no login) and resolves a full audio stream URL.
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { discoverPlayerId } from "./youtube-player-id";
 
 const REQUEST_KEY = "O43z0dpjhgX20SCx4KAo";
 const WAA_KEY = "AIzaSyDyT5W0Jh49F30Pqqtyfdf7pDLFKLJoAnw";
@@ -79,6 +80,7 @@ async function getClient(): Promise<any> {
   return Innertube.create({
     fetch: proxied,
     retrieve_player: true,
+    player_id: await discoverPlayerId(proxied),
     generate_session_locally: true,
   });
 }
