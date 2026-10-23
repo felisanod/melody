@@ -13,6 +13,8 @@ import {
 import { getRadio } from "@/lib/music.functions";
 import { likeVideo, removeSongFromLibrary } from "@/lib/music.functions";
 import type { SongItem } from "@/lib/music-types";
+import { toast } from "sonner";
+import { selectTrack } from "./track-playback";
 
 export type RepeatMode = "off" | "all" | "one";
 
@@ -125,6 +127,18 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const current = queue[index];
 
+  const startTrack = useCallback((song: SongItem, autoplay: boolean) => {
+    const player = playerRef.current;
+    if (!ready || !player) return;
+    const previousId = loadedIdRef.current;
+    if (previousId !== song.id) {
+      setPositionMs(0);
+      setDurationMs((song.durationSeconds ?? 0) * 1000);
+    }
+    loadedIdRef.current = song.id;
+    selectTrack(player, song.id, previousId, autoplay);
+  }, [ready]);
+
   /* ---- restore persisted queue ---- */
   useEffect(() => {
     try {
@@ -219,7 +233,16 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
               }
             }
           },
-          onError: () => advance(1),
+          onAutoplayBlocked: () => {
+            setPlaying(false);
+            toast.info("Tap Play to start this song.");
+          },
+          onError: () => {
+            autoplayRef.current = false;
+            loadedIdRef.current = null;
+            setPlaying(false);
+            toast.error("YouTube couldn't play this song. Try again or choose another song.");
+          },
         },
       });
     });
@@ -232,18 +255,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   /* ---- load the current track ---- */
   useEffect(() => {
     if (!ready || !current) return;
-    const player = playerRef.current;
-    if (!player) return;
     if (loadedIdRef.current === current.id) return;
-    loadedIdRef.current = current.id;
-    setPositionMs(0);
-    setDurationMs((current.durationSeconds ?? 0) * 1000);
-    if (autoplayRef.current) {
-      player.loadVideoById(current.id);
-    } else {
-      player.cueVideoById(current.id);
-    }
-  }, [ready, current, current?.id]);
+    startTrack(current, autoplayRef.current);
+  }, [ready, current, startTrack]);
 
   /* ---- position ticker ---- */
   useEffect(() => {
@@ -406,11 +420,14 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const playQueue = useCallback((songs: SongItem[], startIndex = 0) => {
     if (!songs.length) return;
+    const target = Math.max(0, Math.min(startIndex, songs.length - 1));
+    const song = songs[target];
+    if (!song) return;
     autoplayRef.current = true;
+    startTrack(song, true);
     setQueue(songs);
-    setIndex(Math.max(0, Math.min(startIndex, songs.length - 1)));
-    setPlaying(true);
-  }, []);
+    setIndex(target);
+  }, [startTrack]);
 
   const playSong = useCallback(
     (song: SongItem, contextQueue?: SongItem[]) => {
@@ -435,18 +452,20 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   );
 
   const playAt = useCallback((target: number) => {
+    const song = stateRef.current.queue[target];
+    if (!song) return;
     autoplayRef.current = true;
+    startTrack(song, true);
     setIndex(target);
-    setPlaying(true);
-  }, []);
+  }, [startTrack]);
 
   const toggle = useCallback(() => {
     const player = playerRef.current;
     if (!player || !current) return;
     autoplayRef.current = true;
     if (playing) player.pauseVideo();
-    else player.playVideo();
-  }, [playing, current]);
+    else startTrack(current, true);
+  }, [playing, current, startTrack]);
 
   const seek = useCallback((ms: number) => {
     playerRef.current?.seekTo?.(ms / 1000, true);

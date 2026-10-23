@@ -1,5 +1,6 @@
 - [x] Make song downloads actually complete (full audio)
 - [x] Fix download player-ID discovery and verify a real song saves to Downloads
+- [x] Fix song playback and verify selection, pause/resume, and track changes
 - [x] Verify real download, stored cover/details, offline playback, export tags, and deletion
 - [x] Download buttons on album + now-playing
 - [x] Embed cover/details into exported file

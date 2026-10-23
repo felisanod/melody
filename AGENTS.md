@@ -54,6 +54,7 @@ src/
 ```
 
 ## Playback Engine
+- Start explicit track selections synchronously through the shared track-selection helper and resume already-loaded tracks; playback state must follow engine events rather than optimistic clicks.
 - The expanded view uses mutually exclusive song, lyrics, and queue modes; hide the mini player while expanded without unmounting the playback engine.
 - App-shell service workers register only through the guarded PWA wrapper; HTML navigations use network-first caching and OAuth/API paths are excluded.
 - Downloads resolve streams dynamically in the browser and transfer bytes through the same-origin audio proxy; this keeps browser verification out of SSR and media requests on the resolving server's network.
