@@ -79,7 +79,31 @@ export async function downloadSong(
   if (existing) return existing;
 
   const { resolveStreamInBrowser } = await import("./stream-resolver");
-  const stream = await resolveStreamInBrowser(song.id);
+  const tried: string[] = [];
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    let stream: Awaited<ReturnType<typeof resolveStreamInBrowser>>;
+    try {
+      stream = await resolveStreamInBrowser(song.id, tried);
+    } catch (error) {
+      throw lastError ?? error;
+    }
+    tried.push(stream.client);
+    try {
+      return await saveResolvedStream(song, stream, onProgress);
+    } catch (error) {
+      // The stream passed the check but stopped mid-download; try the next client type.
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
+async function saveResolvedStream(
+  song: SongItem,
+  stream: Awaited<ReturnType<typeof import("./stream-resolver").resolveStreamInBrowser>>,
+  onProgress?: (fraction: number) => void,
+): Promise<DownloadRecord> {
   const meta = {
     ...stream,
     cover: song.thumbnail,

@@ -85,7 +85,26 @@ async function getClient(): Promise<any> {
   });
 }
 
-export async function resolveStreamInBrowser(videoId: string): Promise<ResolvedStream> {
+async function audioIsServed(videoId: string, stream: ResolvedStream): Promise<boolean> {
+  const q = new URLSearchParams({ src: stream.url, len: String(stream.contentLength), probe: "1" });
+  const res = await fetch(`/api/public/audio/${encodeURIComponent(videoId)}?${q}`);
+  return res.ok;
+}
+
+/** Tries several YouTube client types and returns the first whose full audio YouTube actually serves. */
+export async function resolveStreamInBrowser(
+  videoId: string,
+  skip: readonly string[] = [],
+): Promise<ResolvedStream & { client: string }> {
+  const { DOWNLOAD_CLIENTS, firstWorking } = await import("./stream-fallback");
+  return firstWorking(
+    DOWNLOAD_CLIENTS.filter((c) => !skip.includes(c)),
+    (client) => resolveStreamWithClient(videoId, client),
+    async (stream) => stream.contentLength > 0 && (await audioIsServed(videoId, stream)),
+  );
+}
+
+export async function resolveStreamWithClient(videoId: string, client: string): Promise<ResolvedStream> {
   minterPromise ??= createMinter().catch((e) => {
     minterPromise = null;
     throw e;
@@ -96,7 +115,7 @@ export async function resolveStreamInBrowser(videoId: string): Promise<ResolvedS
   });
   const [minter, yt] = await Promise.all([minterPromise, ytPromise]);
   const pot: string = await minter.mintAsWebsafeString(videoId);
-  const info = await yt.getBasicInfo(videoId, { client: "YTMUSIC", po_token: pot });
+  const info = await yt.getBasicInfo(videoId, { client, po_token: pot });
   const supportsM4a = Boolean(document.createElement("audio").canPlayType('audio/mp4; codecs="mp4a.40.2"'));
   const format = info.chooseFormat({ type: "audio", quality: "best", format: supportsM4a ? "mp4" : "webm" });
   let url: string = await format.decipher(yt.session.player);

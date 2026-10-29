@@ -25,6 +25,18 @@ export const Route = createFileRoute("/api/public/audio/$videoId")({
         if (target.protocol !== "https:" || !target.hostname.endsWith(".googlevideo.com")) {
           return new Response("host not allowed", { status: 400 });
         }
+        if (q.get("probe") === "1") {
+          // Check the start, middle and end: YouTube sometimes serves only the opening bytes.
+          const spots = [0, Math.floor(total / 2), Math.max(0, total - 1024)];
+          for (const at of spots) {
+            const res = await fetch(`${target}&range=${at}-${Math.min(at + 1023, total - 1)}`, {
+              headers: { "user-agent": UA },
+            });
+            await res.body?.cancel();
+            if (!res.ok) return new Response("refused", { status: 502 });
+          }
+          return new Response(null, { status: 204 });
+        }
         const first = await fetch(`${target}&range=0-${Math.min(CHUNK, total) - 1}`, {
           headers: { "user-agent": UA },
         });
