@@ -85,7 +85,7 @@ async function getClient(): Promise<any> {
   });
 }
 
-export async function resolveStreamWithClient(videoId: string, client: string): Promise<ResolvedStream> {
+export async function resolveStreamWithClient(videoId: string, client: string, binding: "video" | "session" = "video"): Promise<ResolvedStream> {
   minterPromise ??= createMinter().catch((e) => {
     minterPromise = null;
     throw e;
@@ -100,7 +100,8 @@ export async function resolveStreamWithClient(videoId: string, client: string): 
   const supportsM4a = Boolean(document.createElement("audio").canPlayType('audio/mp4; codecs="mp4a.40.2"'));
   const format = info.chooseFormat({ type: "audio", quality: "best", format: supportsM4a ? "mp4" : "webm" });
   let url: string = await format.decipher(yt.session.player);
-  if (!url.includes("pot=")) url += `&pot=${encodeURIComponent(pot)}`;
+  const gvs = binding === "session" ? await minter.mintAsWebsafeString(yt.session.context.client.visitorData) : pot;
+  url = url.replace(/&pot=[^&]*/, "") + `&pot=${encodeURIComponent(gvs)}`;
   return {
     url,
     mimeType: String(format.mime_type ?? "audio/mp4"),
