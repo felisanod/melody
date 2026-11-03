@@ -37,10 +37,17 @@ function resolveTheme(mode: ThemeMode): boolean {
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeMode>(() => getPreferredTheme());
-  const [isDark, setIsDark] = useState<boolean>(() => resolveTheme(theme));
+  const [theme, setThemeState] = useState<ThemeMode>("system");
+  const [isDark, setIsDark] = useState<boolean>(true);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
+    setThemeState(getPreferredTheme());
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    setIsDark(resolveTheme(theme));
     const handler = () => setIsDark(resolveTheme(theme));
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", handler);
     return () =>
@@ -48,13 +55,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
+    if (!loaded) return;
     document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.style.colorScheme = isDark ? "dark" : "light";
     try {
       localStorage.setItem("flex-web.theme", theme);
     } catch {
       /* ignore */
     }
-  }, [isDark, theme]);
+  }, [isDark, theme, loaded]);
 
   const setTheme = useCallback((mode: ThemeMode) => {
     setThemeState(mode);
